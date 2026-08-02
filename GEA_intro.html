@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GEA — 免費 AI 治理環境評測</title>
+<style>
+  /* ============ 基礎：深色友善、最小字級 10pt ============ */
+  :root {
+    --bg: #12151c;
+    --card: #1c212c;
+    --card-alt: #202a38;
+    --ink: #e8ecf2;
+    --ink-soft: #aab4c4;
+    --accent: #4fc3a1;      /* 主色：可稽核的綠 */
+    --warn: #e8a44c;        /* 半分的橙 */
+    --fail: #e06c75;        /* 零分的紅 */
+    --line: #333d4d;
+    --code-bg: #0d1017;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --card-alt: #eef3f8;
+      --ink: #1c222c;
+      --ink-soft: #52607a;
+      --accent: #0f8a67;
+      --warn: #b06a10;
+      --fail: #c0392b;
+      --line: #d5dde8;
+      --code-bg: #1c222c;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+    font-size: 12pt;              /* 正文 12pt，全頁最小 10pt */
+    line-height: 1.85;
+    padding: 32px 16px 64px;
+  }
+  main { max-width: 860px; margin: 0 auto; }
+
+  /* ============ 字級＝音量 ============ */
+  h1 { font-size: 26pt; line-height: 1.3; letter-spacing: 0.5px; }
+  .subtitle { font-size: 12pt; color: var(--ink-soft); margin-top: 8px; }
+  h2 { font-size: 18pt; margin: 48px 0 16px; line-height: 1.4; }
+  h2 .num { color: var(--accent); margin-right: 6px; }
+  h3 { font-size: 13.5pt; margin-bottom: 8px; }
+  .small { font-size: 10pt; color: var(--ink-soft); }
+  .big-claim { font-size: 15pt; font-weight: 700; line-height: 1.7; }
+
+  /* ============ 卡片：每個概念一張卡 ============ */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin: 14px 0;
+  }
+  .card-accent { border-left: 5px solid var(--accent); }
+  .card-warn   { border-left: 5px solid var(--warn); }
+  .card-fail   { border-left: 5px solid var(--fail); }
+  .card h3 .tag {
+    display: inline-block;
+    font-size: 10pt;
+    font-weight: 400;
+    color: var(--ink-soft);
+    margin-left: 8px;
+  }
+
+  p { margin-bottom: 10px; }
+  strong { color: var(--ink); }
+  .accent-text { color: var(--accent); }
+
+  /* ============ 表格 ============ */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11pt;
+    background: var(--card);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--line); }
+  th { background: var(--card-alt); font-size: 11pt; }
+  td.w { font-size: 14pt; font-weight: 700; color: var(--accent); text-align: center; }
+  tr:last-child td { border-bottom: none; }
+
+  /* ============ 程式碼塊 ============ */
+  pre {
+    background: var(--code-bg);
+    color: #d8e4f0;
+    border-radius: 12px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 11pt;
+    line-height: 1.9;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+  pre .c { color: #7d8ea6; }
+  code.inline {
+    background: var(--card-alt);
+    border-radius: 5px;
+    padding: 1px 7px;
+    font-size: 11pt;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  /* ============ 三態計分的三張卡 ============ */
+  .tri { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin: 14px 0; }
+  .tri .score { font-size: 22pt; font-weight: 800; display: block; margin-bottom: 4px; }
+  .tri .s2 .score { color: var(--accent); }
+  .tri .s1 .score { color: var(--warn); }
+  .tri .s0 .score { color: var(--fail); }
+
+  hr.sep { border: none; border-top: 1px solid var(--line); margin: 40px 0; }
+  footer { margin-top: 56px; font-size: 10pt; color: var(--ink-soft); line-height: 2; }
+</style>
+</head>
+<body>
+<main>
+
+  <!-- ============ 標題（全頁最大聲） ============ -->
+  <header>
+    <h1>GEA — 免費 AI 治理環境評測</h1>
+    <p class="subtitle">Governance Environment Assessment（free &amp; open）</p>
+  </header>
+
+  <!-- ============ ① 一句話是什麼 ============ -->
+  <h2><span class="num">①</span>一句話：這是什麼</h2>
+  <div class="card card-accent">
+    <p class="big-claim">把你的 AI 系統對照 24 個「有真實失效證據」的指標逐項檢查，產出加權分級報告——每個缺口都附免費修法。</p>
+    <p>受測對象可以是 AI agent、自動化管線、或任何嵌入 AI 的應用。<br>
+    工具本身是單一 Python 檔，本地執行，不連網、不上傳任何資料。</p>
+  </div>
+
+  <!-- ============ ② 為什麼跟別的評測不同 ============ -->
+  <h2><span class="num">②</span>為什麼跟別的評測不同</h2>
+  <div class="card">
+    <p class="big-claim">每一個指標都錨定一個真實發生過、有落盤紀錄的失效事件。</p>
+    <p>市面上多數 AI 治理清單是專家想像的理想狀態。<br>
+    GEA 反過來：先有事故，才有指標。<br>
+    沒有證據的要求，進不了計分。</p>
+  </div>
+
+  <p style="margin-top:20px;">三個真實案例，用人話講：</p>
+
+  <div class="card card-fail">
+    <h3>案例一：AI 說「已驗證」，其實根本沒算<span class="tag">→ 指標 1.1</span></h3>
+    <p>一個中階模型在沒被強制要求驗證時，直接回報「Verified」加上一個數值。<br>
+    事後檢查發現：它完全沒有執行任何計算。<br>
+    紀錄全綠，內容為假。<br>
+    <strong>結論：驗證必須由程式執行，AI 的口頭回報不能當驗證。</strong></p>
+  </div>
+
+  <div class="card card-fail">
+    <h3>案例二：發現問題了，然後照樣放行<span class="tag">→ 指標 1.2</span></h3>
+    <p>同一類測試中，模型正確算出資料的雜湊值不相符——它真的偵測到問題了。<br>
+    然後它把這件事記成一條 WARNING，接著宣告「合規：VALID」放行。<br>
+    <strong>結論：「偵測到問題」和「擋下問題」是兩件事，驗證結果必須接到強制中止，AI 不能有「放行」這個選項。</strong></p>
+  </div>
+
+  <div class="card card-fail">
+    <h3>案例三：模型被無聲切換，跑了 42 小時沒人知道<span class="tag">→ 指標 3.2</span></h3>
+    <p>使用者設定了 A 模型，系統在一次背景喚醒時無聲切換成 B 模型，連續運行了 42 小時。<br>
+    零通知。<br>
+    事後是靠逐行解析底層紀錄裡的 API 回應欄位，才重建出完整時間線。<br>
+    <strong>結論：模型無法自證自己是誰，實際型號必須有外部核對通道。</strong></p>
+  </div>
+
+  <p class="small">全部 24 個指標背後各有一個這樣的事故。<br>
+  評測工具本身會把每個指標的「證據來源」印給你看。</p>
+
+  <!-- ============ ③ 七個維度與權重 ============ -->
+  <h2><span class="num">③</span>七個維度與權重</h2>
+  <p>總分 100，按七個維度加權。<br>
+  這張表告訴你每個維度管什麼、佔幾分：</p>
+
+  <div class="table-wrap">
+  <table>
+    <tr><th>維度</th><th>管什麼</th><th style="text-align:center;">權重</th></tr>
+    <tr><td><strong>D1 完整性防護</strong></td><td>驗證是程式做的，還是 AI 嘴上說的</td><td class="w">22</td></tr>
+    <tr><td><strong>D2 狀態真實性</strong></td><td>狀態是程式生成的，還是「記得去更新」的</td><td class="w">18</td></tr>
+    <tr><td><strong>D3 身分與環境</strong></td><td>執行者是誰、模型是誰，可不可證</td><td class="w">14</td></tr>
+    <tr><td><strong>D4 失敗可見性</strong></td><td>失敗會不會被報成成功</td><td class="w">14</td></tr>
+    <tr><td><strong>D5 稽核可重建性</strong></td><td>第三方能不能只靠紀錄重建真相</td><td class="w">14</td></tr>
+    <tr><td><strong>D6 協作治理</strong></td><td>多方協作的訊息鏈與防覆蓋</td><td class="w">8</td></tr>
+    <tr><td><strong>D7 系統效能與成本</strong></td><td>治理成本量過沒有、單位對不對</td><td class="w">10</td></tr>
+  </table>
+  </div>
+
+  <div class="card card-accent" style="margin-top:20px;">
+    <h3>為什麼「治理與安全」佔 82 分</h3>
+    <p>D1 到 D5 合計 <strong class="accent-text">82 分</strong>，效能只佔 10 分、協作佔 8 分。<br>
+    這是刻意的立場：<br>
+    <strong>先能被稽核，再談跑得快。</strong><br>
+    一個跑得飛快、但出事後沒人能重建「發生過什麼」的系統，快只是加速失控。<br>
+    上面三個案例的共同點正是：系統當下看起來一切正常，事後才發現紀錄不可信。</p>
+  </div>
+
+  <!-- ============ ④ 三態計分哲學 ============ -->
+  <h2><span class="num">④</span>三態計分：有規則沒有閘＝半分</h2>
+  <p>每個指標只有三種得分，沒有中間值可以談判：</p>
+
+  <div class="tri">
+    <div class="card s2">
+      <span class="score">滿分</span>
+      <p><strong>程式層強制防護。</strong><br>
+      違規會被程式擋下來，不管當事人自不自律。</p>
+    </div>
+    <div class="card s1">
+      <span class="score">半分</span>
+      <p><strong>有規則，但靠人或 AI 自律遵守。</strong><br>
+      規則寫在文件裡，執行看心情和記性。</p>
+    </div>
+    <div class="card s0">
+      <span class="score">0 分</span>
+      <p><strong>沒有防護。</strong><br>
+      連規則都沒有，或沒人知道該防什麼。</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <p>「有規則沒有閘＝半分」是這個評測最常被問的設計，它是刻意的。<br>
+    很多組織的治理文件寫得很完整，但文件不會攔截任何事。<br>
+    上面的案例二就是活教材：規格白紙黑字寫了規則，AI 讀了、理解了、然後繞過了。<br>
+    <strong>寫在文件裡的規則值一半的分數，因為它只在大家守規矩的日子有效。</strong></p>
+  </div>
+
+  <!-- ============ ⑤ 誠實聲明 ============ -->
+  <h2><span class="num">⑤</span>誠實聲明</h2>
+
+  <div class="card card-warn">
+    <h3>分數不是安全保證</h3>
+    <p>本評測回答「你的環境擋得住哪些已知失效」，不回答「你的系統好不好」。<br>
+    <strong>滿分只代表已知的坑都有蓋子，未知的坑不在任何評測裡。</strong></p>
+  </div>
+
+  <div class="card card-warn">
+    <h3>量尺會持續變嚴，但永不虛構</h3>
+    <p>每輪評測後，我們對每個看似完備的環節問一句：<br>
+    「如果這只值 60 分，剩下 40 分的失效空間在哪裡？」<br>
+    由此產生的新失效假說先放進隔離區觀察。<br>
+    <strong>要等它真的被觀察到、有落盤證據，才升級為計分指標。</strong><br>
+    所以量尺只會越來越嚴，但每一分永遠有真實事故背書。</p>
+  </div>
+
+  <div class="card card-warn">
+    <h3>分數低很正常，作答率要一起看</h3>
+    <p>官方範例報告的分數也只有 <strong>48.2</strong>。<br>
+    每個不及格項都附「免費修法」，從權重最高的 D1 開始修，性價比最高。<br>
+    另外：沒回答的題目不計分也不補分。<br>
+    <strong>看總分之前先看作答率，只答有把握的題衝出來的高分沒有意義。</strong></p>
+  </div>
+
+  <div class="card card-warn">
+    <h3>為什麼沒有「業界平均」可以比較</h3>
+    <p>因為目前還沒有足夠的受測樣本。<br>
+    <strong>我們拒絕編造一個不存在的平均值，等樣本夠了會以匿名彙總發布。</strong></p>
+  </div>
+
+  <!-- ============ ⑥ 30 秒上手 ============ -->
+  <h2><span class="num">⑥</span>30 秒上手</h2>
+  <p>零依賴、單一檔案，只需要 Python 3.8 以上：</p>
+
+  <pre><span class="c"># 先看範例報告長什麼樣</span>
+python3 gea_assess.py --demo
+
+<span class="c"># 互動模式：逐題回答（按 s 鍵看每題說明與證據）</span>
+python3 gea_assess.py
+
+<span class="c"># 驗證工具自身（出報告前也會自動跑）</span>
+python3 gea_assess.py --self-test</pre>
+
+  <p>進階：用 <code class="inline">--answers my.json --out report.md --json-out report.json</code> 批次產出報告。<br>
+  全程本地執行，唯一的輸出是你自己指定路徑的報告檔。</p>
+
+  <hr class="sep">
+
+  <footer>
+    <p><strong>授權：Apache-2.0，永久免費。</strong><br>
+    歡迎貢獻新的「有證據的失效模式」。<br>
+    貢獻規則只有一條：必須附真實發生的事件描述，理想清單不收。</p>
+  </footer>
+
+</main>
+</body>
+</html>
