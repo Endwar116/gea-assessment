@@ -5,288 +5,619 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GEA — 免費 AI 治理環境評測</title>
 <style>
-  /* ============ 基礎：深色友善、最小字級 10pt ============ */
+/* ═══════════════════════════════════════════════════════════════
+   GEA — Governance Environment Assessment · 對外品牌說明
+   視覺語言依 SIC-SIT Brand Standards Master v2.5：
+   Protocol Navy #111827 · Signal Blue #1D4ED8 · Relay Cyan #06B6D4
+   Node Teal #14B8A6 · Paper Sand #F3F4F6 · Body Charcoal #1F2937
+   Warning Amber #F59E0B · Exception Rose #E11D48
+   單檔自足、零外部資源：字體採本機字族堆疊，無任何外連。
+   最小字級 10pt。句號後換行。每頁以 Protocol Navy footer bar 收尾。
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  --navy:    #111827;
+  --blue:    #1D4ED8;
+  --cyan:    #06B6D4;
+  --teal:    #14B8A6;
+  --amber:   #F59E0B;
+  --rose:    #E11D48;
+
+  --bg:          #F3F4F6;   /* Paper Sand 作頁面底 */
+  --surface:     #FFFFFF;   /* 卡片面 */
+  --surface-alt: #F3F4F6;   /* 卡內襯底、表頭 */
+  --ink:         #111827;   /* 標題 = Protocol Navy */
+  --body:        #1F2937;   /* 內文 = Body Charcoal */
+  --muted:       #64748B;   /* Neutral Slate */
+  --faint:       #94A3B8;
+  --line:        #D1D5DB;
+  --line-soft:   #E5E7EB;
+  --smoke:       #E5E7EB;   /* 裝飾斜槓 */
+  --accent:      #1D4ED8;   /* 主強調：Signal Blue */
+  --ok-text:     #0D9488;   /* 深底/淺底皆可讀的分數字色 */
+  --warn-text:   #B45309;
+  --fail-text:   #E11D48;
+  --code-bg:     #0B1929;   /* 深色程式碼面（Dark Portal surface） */
+  --code-ink:    #CBD5E1;
+  --code-cm:     #7D8EA6;
+}
+@media (prefers-color-scheme: dark) {
   :root {
-    --bg: #12151c;
-    --card: #1c212c;
-    --card-alt: #202a38;
-    --ink: #e8ecf2;
-    --ink-soft: #aab4c4;
-    --accent: #4fc3a1;      /* 主色：可稽核的綠 */
-    --warn: #e8a44c;        /* 半分的橙 */
-    --fail: #e06c75;        /* 零分的紅 */
-    --line: #333d4d;
-    --code-bg: #0d1017;
+    --bg:          #040C15;                    /* Dark Portal bg */
+    --surface:     #0B1929;                    /* portal surface */
+    --surface-alt: #10243A;                    /* portal surface2 */
+    --ink:         #F1F5F9;
+    --body:        #CBD5E1;
+    --muted:       #94A3B8;
+    --faint:       #64748B;
+    --line:        rgba(255, 255, 255, 0.14);
+    --line-soft:   rgba(255, 255, 255, 0.09);
+    --smoke:       #162C44;
+    --accent:      #06B6D4;                    /* 深色面改用 Relay Cyan */
+    --ok-text:     #2DD4BF;
+    --warn-text:   #FBBF24;
+    --fail-text:   #FB7185;
+    --code-bg:     #040C15;
+    --code-ink:    #CBD5E1;
+    --code-cm:     #64748B;
   }
-  @media (prefers-color-scheme: light) {
-    :root {
-      --bg: #f5f7fa;
-      --card: #ffffff;
-      --card-alt: #eef3f8;
-      --ink: #1c222c;
-      --ink-soft: #52607a;
-      --accent: #0f8a67;
-      --warn: #b06a10;
-      --fail: #c0392b;
-      --line: #d5dde8;
-      --code-bg: #1c222c;
-    }
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
-    font-size: 12pt;              /* 正文 12pt，全頁最小 10pt */
-    line-height: 1.85;
-    padding: 32px 16px 64px;
-  }
-  main { max-width: 860px; margin: 0 auto; }
+}
 
-  /* ============ 字級＝音量 ============ */
-  h1 { font-size: 26pt; line-height: 1.3; letter-spacing: 0.5px; }
-  .subtitle { font-size: 12pt; color: var(--ink-soft); margin-top: 8px; }
-  h2 { font-size: 18pt; margin: 48px 0 16px; line-height: 1.4; }
-  h2 .num { color: var(--accent); margin-right: 6px; }
-  h3 { font-size: 13.5pt; margin-bottom: 8px; }
-  .small { font-size: 10pt; color: var(--ink-soft); }
-  .big-claim { font-size: 15pt; font-weight: 700; line-height: 1.7; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-  /* ============ 卡片：每個概念一張卡 ============ */
-  .card {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 20px 24px;
-    margin: 14px 0;
-  }
-  .card-accent { border-left: 5px solid var(--accent); }
-  .card-warn   { border-left: 5px solid var(--warn); }
-  .card-fail   { border-left: 5px solid var(--fail); }
-  .card h3 .tag {
-    display: inline-block;
-    font-size: 10pt;
-    font-weight: 400;
-    color: var(--ink-soft);
-    margin-left: 8px;
-  }
+body {
+  background: var(--bg);
+  color: var(--body);
+  font-family: 'Lato', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+  font-size: 11.5pt;                 /* 內文音量；全頁最小 10pt */
+  line-height: 1.92;                 /* 中文行高律法 */
+  letter-spacing: 0.02em;
+  padding: 0 0 56px;
+}
 
-  p { margin-bottom: 10px; }
-  strong { color: var(--ink); }
-  .accent-text { color: var(--accent); }
+/* 頂部品牌雙線：3px Navy + 1px Signal Blue（cover-rule 語法） */
+.brand-rule      { height: 3px; background: var(--navy); }
+.brand-rule-blue { height: 1px; background: var(--blue); }
+@media (prefers-color-scheme: dark) {
+  .brand-rule { background: var(--teal); }
+}
 
-  /* ============ 表格 ============ */
-  .table-wrap { overflow-x: auto; }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 11pt;
-    background: var(--card);
-    border-radius: 14px;
-    overflow: hidden;
-  }
-  th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--line); }
-  th { background: var(--card-alt); font-size: 11pt; }
-  td.w { font-size: 14pt; font-weight: 700; color: var(--accent); text-align: center; }
-  tr:last-child td { border-bottom: none; }
+main { max-width: 880px; margin: 0 auto; padding: 36px 20px 0; }
 
-  /* ============ 程式碼塊 ============ */
-  pre {
-    background: var(--code-bg);
-    color: #d8e4f0;
-    border-radius: 12px;
-    padding: 18px 20px;
-    overflow-x: auto;
-    font-size: 11pt;
-    line-height: 1.9;
-    font-family: "SF Mono", Menlo, Consolas, monospace;
-  }
-  pre .c { color: #7d8ea6; }
-  code.inline {
-    background: var(--card-alt);
-    border-radius: 5px;
-    padding: 1px 7px;
-    font-size: 11pt;
-    font-family: "SF Mono", Menlo, Consolas, monospace;
-  }
+/* ═══ 封面區（字級＝音量：全頁最大聲） ═══ */
+.cover-slash {
+  font-weight: 900;
+  font-size: 44pt;
+  line-height: 1;
+  color: var(--smoke);
+  letter-spacing: -0.04em;
+  user-select: none;
+  margin-bottom: -10px;
+}
+.eyebrow {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 10pt;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+h1 {
+  font-weight: 900;
+  font-size: 38pt;
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.h1-zh {
+  font-family: 'Noto Serif TC', 'Songti TC', 'PMingLiU', serif;
+  font-weight: 900;
+  font-size: 19pt;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+.cover-version {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 10pt;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  margin-bottom: 18px;
+}
+.cover-desc {
+  font-size: 11.5pt;
+  color: var(--body);
+  max-width: 42em;
+  padding-top: 14px;
+  border-top: 2px solid var(--navy);
+}
+@media (prefers-color-scheme: dark) {
+  .cover-desc { border-top-color: var(--line); }
+}
 
-  /* ============ 三態計分的三張卡 ============ */
-  .tri { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin: 14px 0; }
-  .tri .score { font-size: 22pt; font-weight: 800; display: block; margin-bottom: 4px; }
-  .tri .s2 .score { color: var(--accent); }
-  .tri .s1 .score { color: var(--warn); }
-  .tri .s0 .score { color: var(--fail); }
+/* ═══ 章節頭（sh 語法：mono 標籤 + 底線） ═══ */
+section { margin-top: 44px; }
+.sec-label {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 10pt;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 10px;
+}
+h2 {
+  font-size: 16.5pt;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+h3 {
+  font-size: 12.5pt;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+h3 .tag {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 10pt;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-left: 8px;
+  white-space: nowrap;
+}
+p { margin-bottom: 10px; }
+p:last-child { margin-bottom: 0; }
+strong { color: var(--ink); font-weight: 700; }
+.small { font-size: 10pt; color: var(--muted); }
+.big-claim { font-size: 13.5pt; font-weight: 700; line-height: 1.8; color: var(--ink); }
 
-  hr.sep { border: none; border-top: 1px solid var(--line); margin: 40px 0; }
-  footer { margin-top: 56px; font-size: 10pt; color: var(--ink-soft); line-height: 2; }
+/* ═══ 卡片系統（card 語法：1px line、radius 4px） ═══ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 16px 20px;
+  margin: 12px 0;
+}
+.card-accent { border-left: 3px solid var(--accent); }
+.card-fail   { border-left: 3px solid var(--rose); }
+
+/* pq 引言卡：左側 3px 色條 + 襯底（pq 語法） */
+.pq {
+  background: var(--surface-alt);
+  border: 1px solid var(--line-soft);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 4px 4px 0;
+  padding: 14px 20px;
+  margin: 12px 0;
+}
+.pq-label {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 10pt;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 6px;
+}
+.pq-amber { border-left-color: var(--amber); }
+.pq-amber .pq-label { color: var(--warn-text); }
+
+/* pq-dark 結論卡：Navy 底 + Cyan 左條（pq-dark 語法） */
+.pq-dark {
+  background: var(--navy);
+  border: 1px solid var(--navy);
+  border-left: 3px solid var(--cyan);
+  border-radius: 0 4px 4px 0;
+  padding: 14px 20px;
+  margin: 12px 0;
+  color: rgba(255, 255, 255, 0.85);
+}
+.pq-dark .pq-label { color: var(--cyan); }
+.pq-dark strong { color: #FFFFFF; }
+@media (prefers-color-scheme: dark) {
+  .pq-dark { border-color: rgba(255, 255, 255, 0.14); }
+}
+
+/* ═══ 三欄網格（g3 語法，窄幅自動折行） ═══ */
+.g3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 12px;
+  margin: 12px 0;
+}
+.g3 .card { margin: 0; }
+
+/* 模式卡：頂部 4px 色條（functional card 語法） */
+.mode-card { border-top: 4px solid var(--teal); display: flex; flex-direction: column; }
+.mode-card.soon { border-top-color: var(--amber); }
+.mode-tag {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 10pt;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.mode-cmd {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 10pt;
+  color: var(--code-ink);
+  background: var(--code-bg);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  padding: 8px 10px;
+  margin-top: auto;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 10pt;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  border-radius: 3px;
+  padding: 1px 8px;
+  margin-bottom: 8px;
+}
+.badge-ok   { color: var(--ok-text);   border: 1px solid var(--teal); }
+.badge-soon { color: var(--warn-text); border: 1px solid var(--amber); }
+
+/* ═══ 三態計分卡 ═══ */
+.tri-card { border-top: 4px solid var(--line); }
+.tri-card .score { font-size: 20pt; font-weight: 900; display: block; line-height: 1.3; margin-bottom: 4px; }
+.tri-2 { border-top-color: var(--teal); }  .tri-2 .score { color: var(--ok-text); }
+.tri-1 { border-top-color: var(--amber); } .tri-1 .score { color: var(--warn-text); }
+.tri-0 { border-top-color: var(--rose); }  .tri-0 .score { color: var(--fail-text); }
+
+/* ═══ 表格（dt 語法：mono 表頭、Navy 重底線） ═══ */
+.table-wrap { overflow-x: auto; margin: 12px 0; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+  font-size: 10.5pt;
+}
+th {
+  text-align: left;
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 10pt;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--surface-alt);
+  padding: 8px 12px;
+  border-bottom: 1.5px solid var(--navy);
+}
+@media (prefers-color-scheme: dark) {
+  th { border-bottom-color: var(--teal); }
+}
+td { padding: 8px 12px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+td.dim-name { font-weight: 700; color: var(--ink); white-space: nowrap; }
+td.w {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 12.5pt;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: center;
+}
+
+/* ═══ 程式碼塊（Dark Portal 面） ═══ */
+pre {
+  background: var(--code-bg);
+  color: var(--code-ink);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  padding: 16px 18px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 10.5pt;
+  line-height: 1.9;
+  margin: 12px 0;
+}
+pre .c { color: var(--code-cm); }
+code.inline {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 10.5pt;
+  color: var(--accent);
+  background: var(--surface-alt);
+  border-radius: 3px;
+  padding: 1px 6px;
+}
+
+/* ═══ Footer bar（RULE-03：Protocol Navy 收尾） ═══ */
+.pf {
+  margin-top: 52px;
+  background: var(--navy);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.pf-inner { max-width: 880px; margin: 0 auto; width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.pf-brand { font-weight: 900; font-size: 12pt; color: #FFFFFF; letter-spacing: 0.04em; }
+.pf-label {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 10pt;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+.pf-num {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 10pt;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+footer.note { max-width: 880px; margin: 40px auto 0; padding: 0 20px; font-size: 10pt; color: var(--muted); line-height: 2; }
+
+@media print {
+  body { background: #fff; }
+  .card, .pq, table { break-inside: avoid; }
+}
 </style>
 </head>
 <body>
+
+<div class="brand-rule"></div>
+<div class="brand-rule-blue"></div>
+
 <main>
 
-  <!-- ============ 標題（全頁最大聲） ============ -->
+  <!-- ═══ 封面：字級＝音量，標題全頁最大聲 ═══ -->
   <header>
-    <h1>GEA — 免費 AI 治理環境評測</h1>
-    <p class="subtitle">Governance Environment Assessment（free &amp; open）</p>
+    <div class="cover-slash">/</div>
+    <div class="eyebrow">Free &amp; Open · Local-Only Assessment</div>
+    <h1>GEA</h1>
+    <div class="h1-zh">免費 AI 治理環境評測</div>
+    <div class="cover-version">Governance Environment Assessment · Apache-2.0</div>
+    <p class="cover-desc">受測對象可以是 AI agent、自動化管線、或任何嵌入 AI 的應用。<br>
+    工具本身是單一 Python 檔，本地執行，不連網、不上傳任何資料。</p>
   </header>
 
-  <!-- ============ ① 一句話是什麼 ============ -->
-  <h2><span class="num">①</span>一句話：這是什麼</h2>
-  <div class="card card-accent">
-    <p class="big-claim">把你的 AI 系統對照 24 個「有真實失效證據」的指標逐項檢查，產出加權分級報告——每個缺口都附免費修法。</p>
-    <p>受測對象可以是 AI agent、自動化管線、或任何嵌入 AI 的應用。<br>
-    工具本身是單一 Python 檔，本地執行，不連網、不上傳任何資料。</p>
-  </div>
-
-  <!-- ============ ② 為什麼跟別的評測不同 ============ -->
-  <h2><span class="num">②</span>為什麼跟別的評測不同</h2>
-  <div class="card">
-    <p class="big-claim">每一個指標都錨定一個真實發生過、有落盤紀錄的失效事件。</p>
-    <p>市面上多數 AI 治理清單是專家想像的理想狀態。<br>
-    GEA 反過來：先有事故，才有指標。<br>
-    沒有證據的要求，進不了計分。</p>
-  </div>
-
-  <p style="margin-top:20px;">三個真實案例，用人話講：</p>
-
-  <div class="card card-fail">
-    <h3>案例一：AI 說「已驗證」，其實根本沒算<span class="tag">→ 指標 1.1</span></h3>
-    <p>一個中階模型在沒被強制要求驗證時，直接回報「Verified」加上一個數值。<br>
-    事後檢查發現：它完全沒有執行任何計算。<br>
-    紀錄全綠，內容為假。<br>
-    <strong>結論：驗證必須由程式執行，AI 的口頭回報不能當驗證。</strong></p>
-  </div>
-
-  <div class="card card-fail">
-    <h3>案例二：發現問題了，然後照樣放行<span class="tag">→ 指標 1.2</span></h3>
-    <p>同一類測試中，模型正確算出資料的雜湊值不相符——它真的偵測到問題了。<br>
-    然後它把這件事記成一條 WARNING，接著宣告「合規：VALID」放行。<br>
-    <strong>結論：「偵測到問題」和「擋下問題」是兩件事，驗證結果必須接到強制中止，AI 不能有「放行」這個選項。</strong></p>
-  </div>
-
-  <div class="card card-fail">
-    <h3>案例三：模型被無聲切換，跑了 42 小時沒人知道<span class="tag">→ 指標 3.2</span></h3>
-    <p>使用者設定了 A 模型，系統在一次背景喚醒時無聲切換成 B 模型，連續運行了 42 小時。<br>
-    零通知。<br>
-    事後是靠逐行解析底層紀錄裡的 API 回應欄位，才重建出完整時間線。<br>
-    <strong>結論：模型無法自證自己是誰，實際型號必須有外部核對通道。</strong></p>
-  </div>
-
-  <p class="small">全部 24 個指標背後各有一個這樣的事故。<br>
-  評測工具本身會把每個指標的「證據來源」印給你看。</p>
-
-  <!-- ============ ③ 七個維度與權重 ============ -->
-  <h2><span class="num">③</span>七個維度與權重</h2>
-  <p>總分 100，按七個維度加權。<br>
-  這張表告訴你每個維度管什麼、佔幾分：</p>
-
-  <div class="table-wrap">
-  <table>
-    <tr><th>維度</th><th>管什麼</th><th style="text-align:center;">權重</th></tr>
-    <tr><td><strong>D1 完整性防護</strong></td><td>驗證是程式做的，還是 AI 嘴上說的</td><td class="w">22</td></tr>
-    <tr><td><strong>D2 狀態真實性</strong></td><td>狀態是程式生成的，還是「記得去更新」的</td><td class="w">18</td></tr>
-    <tr><td><strong>D3 身分與環境</strong></td><td>執行者是誰、模型是誰，可不可證</td><td class="w">14</td></tr>
-    <tr><td><strong>D4 失敗可見性</strong></td><td>失敗會不會被報成成功</td><td class="w">14</td></tr>
-    <tr><td><strong>D5 稽核可重建性</strong></td><td>第三方能不能只靠紀錄重建真相</td><td class="w">14</td></tr>
-    <tr><td><strong>D6 協作治理</strong></td><td>多方協作的訊息鏈與防覆蓋</td><td class="w">8</td></tr>
-    <tr><td><strong>D7 系統效能與成本</strong></td><td>治理成本量過沒有、單位對不對</td><td class="w">10</td></tr>
-  </table>
-  </div>
-
-  <div class="card card-accent" style="margin-top:20px;">
-    <h3>為什麼「治理與安全」佔 82 分</h3>
-    <p>D1 到 D5 合計 <strong class="accent-text">82 分</strong>，效能只佔 10 分、協作佔 8 分。<br>
-    這是刻意的立場：<br>
-    <strong>先能被稽核，再談跑得快。</strong><br>
-    一個跑得飛快、但出事後沒人能重建「發生過什麼」的系統，快只是加速失控。<br>
-    上面三個案例的共同點正是：系統當下看起來一切正常，事後才發現紀錄不可信。</p>
-  </div>
-
-  <!-- ============ ④ 三態計分哲學 ============ -->
-  <h2><span class="num">④</span>三態計分：有規則沒有閘＝半分</h2>
-  <p>每個指標只有三種得分，沒有中間值可以談判：</p>
-
-  <div class="tri">
-    <div class="card s2">
-      <span class="score">滿分</span>
-      <p><strong>程式層強制防護。</strong><br>
-      違規會被程式擋下來，不管當事人自不自律。</p>
+  <!-- ═══ 01 一句話 ═══ -->
+  <section>
+    <div class="sec-label">01 · What It Is</div>
+    <h2>一句話：這是什麼</h2>
+    <div class="card card-accent">
+      <p class="big-claim">把你的 AI 系統對照 24 個「有真實失效證據」的指標逐項檢查，產出加權分級報告——每個缺口都附免費修法。</p>
     </div>
-    <div class="card s1">
-      <span class="score">半分</span>
-      <p><strong>有規則，但靠人或 AI 自律遵守。</strong><br>
-      規則寫在文件裡，執行看心情和記性。</p>
+  </section>
+
+  <!-- ═══ 02 一項技術，三種模式 ═══ -->
+  <section>
+    <div class="sec-label">02 · One Method, Three Modes</div>
+    <h2>一項技術，三種模式</h2>
+    <p>同一套證據錨定方法，從三個層面檢查你的系統。<br>
+    三種模式各自可單獨使用，也互補成完整視角。</p>
+
+    <div class="g3">
+      <div class="card mode-card">
+        <div class="mode-tag">Mode S · Scan</div>
+        <h3>S 掃描 — 產物層</h3>
+        <div><span class="badge badge-ok">已可用</span></div>
+        <p>自動掃描你的系統目錄實際有什麼。<br>
+        log 有沒有 hash、金鑰有沒有隔離，共 10 個領域自動檢查。</p>
+        <div class="mode-cmd">python3 scan/selfcheck.py 你的系統目錄 --profile basic</div>
+      </div>
+      <div class="card mode-card">
+        <div class="mode-tag">Mode Q · Questionnaire</div>
+        <h3>Q 問卷 — 設計層</h3>
+        <div><span class="badge badge-ok">已可用</span></div>
+        <p>你的治理設計防住哪些已知失效。<br>
+        24 個證據錨定指標逐題作答。</p>
+        <div class="mode-cmd">python3 gea_assess.py</div>
+      </div>
+      <div class="card mode-card soon">
+        <div class="mode-tag">Mode P · Probe</div>
+        <h3>P 探針 — 行為層</h3>
+        <div><span class="badge badge-soon">路線圖</span></div>
+        <p>你的 AI 被動手腳時實際會怎樣。<br>
+        以主動注入測試直接驗證行為。<br>
+        規格已定，實作中。</p>
+        <div class="mode-cmd">（實作完成後開放）</div>
+      </div>
     </div>
-    <div class="card s0">
-      <span class="score">0 分</span>
-      <p><strong>沒有防護。</strong><br>
-      連規則都沒有，或沒人知道該防什麼。</p>
+
+    <div class="pq-dark">
+      <div class="pq-label">三層互補</div>
+      <p><strong>掃描看「有沒有做」、問卷看「想沒想到」、探針看「真的擋不擋得住」。</strong></p>
     </div>
-  </div>
+  </section>
 
-  <div class="card">
-    <p>「有規則沒有閘＝半分」是這個評測最常被問的設計，它是刻意的。<br>
-    很多組織的治理文件寫得很完整，但文件不會攔截任何事。<br>
-    上面的案例二就是活教材：規格白紙黑字寫了規則，AI 讀了、理解了、然後繞過了。<br>
-    <strong>寫在文件裡的規則值一半的分數，因為它只在大家守規矩的日子有效。</strong></p>
-  </div>
+  <!-- ═══ 03 為什麼不同 ═══ -->
+  <section>
+    <div class="sec-label">03 · Why It's Different</div>
+    <h2>為什麼跟別的評測不同</h2>
+    <div class="card card-accent">
+      <p class="big-claim">每一個指標都錨定一個真實發生過、有落盤紀錄的失效事件。</p>
+      <p>市面上多數 AI 治理清單是專家想像的理想狀態。<br>
+      GEA 反過來：先有事故，才有指標。<br>
+      沒有證據的要求，進不了計分。</p>
+    </div>
 
-  <!-- ============ ⑤ 誠實聲明 ============ -->
-  <h2><span class="num">⑤</span>誠實聲明</h2>
+    <p style="margin-top:18px;">三個真實案例，用人話講：</p>
 
-  <div class="card card-warn">
-    <h3>分數不是安全保證</h3>
-    <p>本評測回答「你的環境擋得住哪些已知失效」，不回答「你的系統好不好」。<br>
-    <strong>滿分只代表已知的坑都有蓋子，未知的坑不在任何評測裡。</strong></p>
-  </div>
+    <div class="card card-fail">
+      <h3>案例一：AI 說「已驗證」，其實根本沒算<span class="tag">→ 指標 1.1</span></h3>
+      <p>一個中階模型在沒被強制要求驗證時，直接回報「Verified」加上一個數值。<br>
+      事後檢查發現：它完全沒有執行任何計算。<br>
+      紀錄全綠，內容為假。<br>
+      <strong>結論：驗證必須由程式執行，AI 的口頭回報不能當驗證。</strong></p>
+    </div>
 
-  <div class="card card-warn">
-    <h3>量尺會持續變嚴，但永不虛構</h3>
-    <p>每輪評測後，我們對每個看似完備的環節問一句：<br>
-    「如果這只值 60 分，剩下 40 分的失效空間在哪裡？」<br>
-    由此產生的新失效假說先放進隔離區觀察。<br>
-    <strong>要等它真的被觀察到、有落盤證據，才升級為計分指標。</strong><br>
-    所以量尺只會越來越嚴，但每一分永遠有真實事故背書。</p>
-  </div>
+    <div class="card card-fail">
+      <h3>案例二：發現問題了，然後照樣放行<span class="tag">→ 指標 1.2</span></h3>
+      <p>同一類測試中，模型正確算出資料的雜湊值不相符——它真的偵測到問題了。<br>
+      然後它把這件事記成一條 WARNING，接著宣告「合規：VALID」放行。<br>
+      <strong>結論：「偵測到問題」和「擋下問題」是兩件事，驗證結果必須接到強制中止，AI 不能有「放行」這個選項。</strong></p>
+    </div>
 
-  <div class="card card-warn">
-    <h3>分數低很正常，作答率要一起看</h3>
-    <p>官方範例報告的分數也只有 <strong>48.2</strong>。<br>
-    每個不及格項都附「免費修法」，從權重最高的 D1 開始修，性價比最高。<br>
-    另外：沒回答的題目不計分也不補分。<br>
-    <strong>看總分之前先看作答率，只答有把握的題衝出來的高分沒有意義。</strong></p>
-  </div>
+    <div class="card card-fail">
+      <h3>案例三：模型被無聲切換，跑了 42 小時沒人知道<span class="tag">→ 指標 3.2</span></h3>
+      <p>使用者設定了 A 模型，系統在一次背景喚醒時無聲切換成 B 模型，連續運行了 42 小時。<br>
+      零通知。<br>
+      事後是靠逐行解析底層紀錄裡的 API 回應欄位，才重建出完整時間線。<br>
+      <strong>結論：模型無法自證自己是誰，實際型號必須有外部核對通道。</strong></p>
+    </div>
 
-  <div class="card card-warn">
-    <h3>為什麼沒有「業界平均」可以比較</h3>
-    <p>因為目前還沒有足夠的受測樣本。<br>
-    <strong>我們拒絕編造一個不存在的平均值，等樣本夠了會以匿名彙總發布。</strong></p>
-  </div>
+    <p class="small">全部 24 個指標背後各有一個這樣的事故。<br>
+    評測工具本身會把每個指標的「證據來源」印給你看。</p>
+  </section>
 
-  <!-- ============ ⑥ 30 秒上手 ============ -->
-  <h2><span class="num">⑥</span>30 秒上手</h2>
-  <p>零依賴、單一檔案，只需要 Python 3.8 以上：</p>
+  <!-- ═══ 04 七維度與權重 ═══ -->
+  <section>
+    <div class="sec-label">04 · Seven Dimensions</div>
+    <h2>七個維度與權重</h2>
+    <p>總分 100，按七個維度加權。<br>
+    這張表告訴你每個維度管什麼、佔幾分：</p>
 
-  <pre><span class="c"># 先看範例報告長什麼樣</span>
+    <div class="table-wrap">
+    <table>
+      <tr><th>維度</th><th>管什麼</th><th style="text-align:center;">權重</th></tr>
+      <tr><td class="dim-name">D1 完整性防護</td><td>驗證是程式做的，還是 AI 嘴上說的</td><td class="w">22</td></tr>
+      <tr><td class="dim-name">D2 狀態真實性</td><td>狀態是程式生成的，還是「記得去更新」的</td><td class="w">18</td></tr>
+      <tr><td class="dim-name">D3 身分與環境</td><td>執行者是誰、模型是誰，可不可證</td><td class="w">14</td></tr>
+      <tr><td class="dim-name">D4 失敗可見性</td><td>失敗會不會被報成成功</td><td class="w">14</td></tr>
+      <tr><td class="dim-name">D5 稽核可重建性</td><td>第三方能不能只靠紀錄重建真相</td><td class="w">14</td></tr>
+      <tr><td class="dim-name">D6 協作治理</td><td>多方協作的訊息鏈與防覆蓋</td><td class="w">8</td></tr>
+      <tr><td class="dim-name">D7 系統效能與成本</td><td>治理成本量過沒有、單位對不對</td><td class="w">10</td></tr>
+    </table>
+    </div>
+
+    <div class="pq-dark">
+      <div class="pq-label">為什麼「治理與安全」佔 82 分</div>
+      <p>D1 到 D5 合計 82 分，效能只佔 10 分、協作佔 8 分。<br>
+      這是刻意的立場：<br>
+      <strong>先能被稽核，再談跑得快。</strong><br>
+      一個跑得飛快、但出事後沒人能重建「發生過什麼」的系統，快只是加速失控。<br>
+      上面三個案例的共同點正是：系統當下看起來一切正常，事後才發現紀錄不可信。</p>
+    </div>
+  </section>
+
+  <!-- ═══ 05 三態計分 ═══ -->
+  <section>
+    <div class="sec-label">05 · Ternary Scoring</div>
+    <h2>三態計分：有規則沒有閘＝半分</h2>
+    <p>每個指標只有三種得分，沒有中間值可以談判：</p>
+
+    <div class="g3">
+      <div class="card tri-card tri-2">
+        <span class="score">滿分</span>
+        <p><strong>程式層強制防護。</strong><br>
+        違規會被程式擋下來，不管當事人自不自律。</p>
+      </div>
+      <div class="card tri-card tri-1">
+        <span class="score">半分</span>
+        <p><strong>有規則，但靠人或 AI 自律遵守。</strong><br>
+        規則寫在文件裡，執行看心情和記性。</p>
+      </div>
+      <div class="card tri-card tri-0">
+        <span class="score">0 分</span>
+        <p><strong>沒有防護。</strong><br>
+        連規則都沒有，或沒人知道該防什麼。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <p>「有規則沒有閘＝半分」是這個評測最常被問的設計，它是刻意的。<br>
+      很多組織的治理文件寫得很完整，但文件不會攔截任何事。<br>
+      上面的案例二就是活教材：規格白紙黑字寫了規則，AI 讀了、理解了、然後繞過了。<br>
+      <strong>寫在文件裡的規則值一半的分數，因為它只在大家守規矩的日子有效。</strong></p>
+    </div>
+  </section>
+
+  <!-- ═══ 06 誠實聲明 ═══ -->
+  <section>
+    <div class="sec-label">06 · Honest Disclosure</div>
+    <h2>誠實聲明</h2>
+
+    <div class="pq pq-amber">
+      <div class="pq-label">聲明一 · 分數不是安全保證</div>
+      <p>本評測回答「你的環境擋得住哪些已知失效」，不回答「你的系統好不好」。<br>
+      <strong>滿分只代表已知的坑都有蓋子，未知的坑不在任何評測裡。</strong></p>
+    </div>
+
+    <div class="pq pq-amber">
+      <div class="pq-label">聲明二 · 量尺會持續變嚴，但永不虛構</div>
+      <p>每輪評測後，我們對每個看似完備的環節問一句：<br>
+      「如果這只值 60 分，剩下 40 分的失效空間在哪裡？」<br>
+      由此產生的新失效假說先放進隔離區觀察。<br>
+      <strong>要等它真的被觀察到、有落盤證據，才升級為計分指標。</strong><br>
+      所以量尺只會越來越嚴，但每一分永遠有真實事故背書。</p>
+    </div>
+
+    <div class="pq pq-amber">
+      <div class="pq-label">聲明三 · 分數低很正常，作答率要一起看</div>
+      <p>官方範例報告的分數也只有 48.2。<br>
+      每個不及格項都附「免費修法」，從權重最高的 D1 開始修，性價比最高。<br>
+      另外：沒回答的題目不計分也不補分。<br>
+      <strong>看總分之前先看作答率，只答有把握的題衝出來的高分沒有意義。</strong></p>
+    </div>
+
+    <div class="pq pq-amber">
+      <div class="pq-label">聲明四 · 為什麼沒有「業界平均」可以比較</div>
+      <p>因為目前還沒有足夠的受測樣本。<br>
+      <strong>我們拒絕編造一個不存在的平均值，等樣本夠了會以匿名彙總發布。</strong></p>
+    </div>
+  </section>
+
+  <!-- ═══ 07 30 秒上手 ═══ -->
+  <section>
+    <div class="sec-label">07 · Quick Start</div>
+    <h2>30 秒上手</h2>
+    <p>零依賴、單一檔案，只需要 Python 3.8 以上：</p>
+
+    <pre><span class="c"># 先看範例報告長什麼樣</span>
 python3 gea_assess.py --demo
 
-<span class="c"># 互動模式：逐題回答（按 s 鍵看每題說明與證據）</span>
+<span class="c"># Q 模式互動作答：逐題回答（按 s 鍵看每題說明與證據）</span>
 python3 gea_assess.py
+
+<span class="c"># S 模式自動掃描：檢查你的系統目錄實際有什麼</span>
+python3 scan/selfcheck.py 你的系統目錄 --profile basic
 
 <span class="c"># 驗證工具自身（出報告前也會自動跑）</span>
 python3 gea_assess.py --self-test</pre>
 
-  <p>進階：用 <code class="inline">--answers my.json --out report.md --json-out report.json</code> 批次產出報告。<br>
-  全程本地執行，唯一的輸出是你自己指定路徑的報告檔。</p>
-
-  <hr class="sep">
-
-  <footer>
-    <p><strong>授權：Apache-2.0，永久免費。</strong><br>
-    歡迎貢獻新的「有證據的失效模式」。<br>
-    貢獻規則只有一條：必須附真實發生的事件描述，理想清單不收。</p>
-  </footer>
+    <p>進階：用 <code class="inline">--answers my.json --out report.md --json-out report.json</code> 批次產出報告。<br>
+    全程本地執行，唯一的輸出是你自己指定路徑的報告檔。</p>
+  </section>
 
 </main>
+
+<footer class="note">
+  <p><strong>授權：Apache-2.0，永久免費。</strong><br>
+  歡迎貢獻新的「有證據的失效模式」。<br>
+  貢獻規則只有一條：必須附真實發生的事件描述，理想清單不收。</p>
+</footer>
+
+<!-- Protocol Navy footer bar（品牌律法 RULE-03） -->
+<div class="pf">
+  <div class="pf-inner">
+    <div class="pf-brand">GEA</div>
+    <div class="pf-label">Governance Environment Assessment · Free &amp; Open</div>
+    <div class="pf-num">APACHE-2.0</div>
+  </div>
+</div>
+
 </body>
 </html>
