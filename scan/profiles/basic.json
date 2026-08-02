@@ -1,0 +1,2 @@
+{"profile":"basic","label":"級一 基本可控","desc":"5-10人/單一AI工具",
+ "domains":["logging","secrets","guardrail","closure","filerules"]}

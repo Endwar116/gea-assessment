@@ -1,0 +1,15 @@
+{
+ "profile": "sustained",
+ "label": "級二 可持續",
+ "desc": "有流程依賴AI",
+ "domains": [
+  "logging",
+  "secrets",
+  "guardrail",
+  "closure",
+  "filerules",
+  "continuity",
+  "staleness",
+  "integrity"
+ ]
+}

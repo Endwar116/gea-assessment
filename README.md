@@ -3,13 +3,30 @@
 
 **一句話**：把你的 AI 系統（agent、自動化管線、AI 應用）對照 **24 個有真實失效證據的指標**逐項檢查，產出加權分級報告，每個缺口都附免費修法。
 
-## 30 秒開始（零依賴，單檔，Python 3.8+）
+## 一項技術，三種模式
+
+| 模式 | 測什麼層 | 怎麼跑 | 狀態 |
+|---|---|---|---|
+| **S 掃描** | **產物層**：你的系統目錄實際有什麼（log 有沒有 hash、金鑰有沒有隔離…10 領域自動檢查） | `python3 scan/selfcheck.py /你的系統目錄 --profile basic` | ✅ 可用 |
+| **Q 問卷** | **設計層**：你的治理設計防住哪些已知失效（24 個證據錨定指標） | `python3 gea_assess.py` | ✅ 可用 |
+| **P 探針** | **行為層**：你的 AI 被動手腳時實際會怎樣（主動注入測試） | 規格已定，實作中 | 🔜 路線圖 |
+
+三層互補：**掃描看「有沒有做」、問卷看「想沒想到」、探針看「真的擋不擋得住」。**
+
+## 30 秒開始（零依賴，Python 3.8+ 純標準庫）
 
 ```bash
-python3 gea_assess.py --demo          # 先看範例報告長什麼樣
-python3 gea_assess.py                 # 互動模式：逐題回答（s 鍵看每題說明）
-python3 gea_assess.py --self-test     # 驗證工具自身（出報告前也會自動跑）
+python3 gea_assess.py --demo                          # Q 模式：先看範例報告
+python3 gea_assess.py                                 # Q 模式：互動作答（s 鍵看說明）
+python3 scan/selfcheck.py /你的AI系統目錄 --profile basic   # S 模式：自動掃描
+python3 scan/selfcheck.py 目錄 --agent --mapping        # agent 加分軌＋ISO42001/NIST/OWASP 對照
+python3 gea_assess.py --self-test && python3 scan/selftest.py   # 兩引擎自我驗證
 ```
+
+**S 模式評分模型**：60/40 雙層——基礎門檻 60 分池＋品質 40 分池，
+**品質 gated on 基礎**（某領域連 log 都沒有，就不給談防竄改的品質分）。
+此模型經預先註冊的四項行為預測驗證（空目錄 1 分／完整系統 88 分／
+只有裸 log 的目錄 26 分且「基礎✓品質✗」清楚分離）。
 
 進階：
 ```bash

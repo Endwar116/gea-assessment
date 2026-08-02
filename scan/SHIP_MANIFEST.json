@@ -1,0 +1,60 @@
+{
+ "note": "SHIP=出貨核心（須零內部字）；INTERNAL=內部技術資料（DOSSIER/紅隊，不隨開源出貨）",
+ "files": [
+  {
+   "file": "R14_預測.md",
+   "class": "INTERNAL",
+   "internal_refs": 4
+  },
+  {
+   "file": "R14_預測_v0.3評分模型.md",
+   "class": "INTERNAL",
+   "internal_refs": 0
+  },
+  {
+   "file": "TECH_DOSSIER.md",
+   "class": "INTERNAL",
+   "internal_refs": 13
+  },
+  {
+   "file": "MANIFEST.json",
+   "class": "SHIP",
+   "internal_refs": 0
+  },
+  {
+   "file": "README.md",
+   "class": "SHIP",
+   "internal_refs": 0
+  },
+  {
+   "file": "checks/__init__.py",
+   "class": "SHIP",
+   "internal_refs": 0
+  },
+  {
+   "file": "mappings/framework_mapping.json",
+   "class": "SHIP",
+   "internal_refs": 0
+  },
+  {
+   "file": "profiles/auditable.json",
+   "class": "SHIP",
+   "internal_refs": 0
+  },
+  {
+   "file": "profiles/basic.json",
+   "class": "SHIP",
+   "internal_refs": 0
+  },
+  {
+   "file": "profiles/sustained.json",
+   "class": "SHIP",
+   "internal_refs": 0
+  },
+  {
+   "file": "selfcheck.py",
+   "class": "SHIP",
+   "internal_refs": 0
+  }
+ ]
+}

@@ -1,0 +1,38 @@
+{
+  "_meta": "參考映射表：本工具 9 檢測領域 ←→ 國際框架條目對照。僅供理解本工具檢查點的來源脈絡，不構成任何框架之符合性聲明或認證。",
+  "_disclaimer": "本對照為非正式參考。ISO/IEC 42001、NIST AI RMF、OWASP LLM Top 10 之正式符合性判定須由授權機構執行；本工具僅為地端自我檢視。",
+  "_sources": {
+    "ISO42001": "ISO/IEC 42001:2023 AI 管理系統（AIMS）——條款為概念對應，非逐字引用",
+    "NIST_AI_RMF": "NIST AI Risk Management Framework 1.0（GOVERN/MAP/MEASURE/MANAGE 四功能）",
+    "OWASP_LLM": "OWASP Top 10 for LLM Applications"
+  },
+  "mappings": [
+    {"domain": "logging", "label": "動作紀錄",
+     "ISO42001": "A.9 營運（運行紀錄）／A.6.2.8 事件日誌", "NIST_AI_RMF": "MEASURE 2.x（可追溯性）",
+     "OWASP_LLM": "LLM09 過度代理（需可稽核）", "note": "AI 動作有紀錄且防竄"},
+    {"domain": "secrets", "label": "金鑰隔離",
+     "ISO42001": "A.7 支援資源（資訊安全控制）", "NIST_AI_RMF": "MANAGE 2.x（第三方/憑證風險）",
+     "OWASP_LLM": "LLM06 敏感資訊揭露", "note": "憑證不外露、系統化管理"},
+    {"domain": "guardrail", "label": "危險操作攔截",
+     "ISO42001": "A.9.4 運行控制", "NIST_AI_RMF": "MANAGE 4.x（風險處置控制）",
+     "OWASP_LLM": "LLM08 過度自主/LLM02 不安全輸出處理", "note": "破壞性操作前置攔截"},
+    {"domain": "closure", "label": "完成需核准",
+     "ISO42001": "A.9.2 人為監督", "NIST_AI_RMF": "GOVERN 1.x（究責）／MANAGE 1.x",
+     "OWASP_LLM": "LLM09 過度代理", "note": "AI 不得自宣完成，需人核准"},
+    {"domain": "continuity", "label": "中斷可復原",
+     "ISO42001": "A.9 營運持續／A.8 生命週期", "NIST_AI_RMF": "MANAGE 4.x（韌性）",
+     "OWASP_LLM": "—", "note": "狀態可交接、中斷可復原"},
+    {"domain": "filerules", "label": "檔案規則",
+     "ISO42001": "A.4 管理系統政策／A.5 內部組織", "NIST_AI_RMF": "GOVERN 1.x（政策程序）",
+     "OWASP_LLM": "—", "note": "明文操作規則、單一真源"},
+    {"domain": "eventquery", "label": "事件可查",
+     "ISO42001": "A.9.3 監測量測分析", "NIST_AI_RMF": "MEASURE 3.x（追蹤）",
+     "OWASP_LLM": "LLM09（事件可調查）", "note": "事件可結構化查詢"},
+    {"domain": "integrity", "label": "引用完整",
+     "ISO42001": "A.7.4 資料資源品質", "NIST_AI_RMF": "MAP 2.x（系統邊界/依賴）",
+     "OWASP_LLM": "LLM03 訓練/資料供應鏈（完整性）", "note": "文件/資料引用完整不失真"},
+    {"domain": "incident", "label": "事故教訓迴圈",
+     "ISO42001": "A.10 改進（不符合與矯正）", "NIST_AI_RMF": "MANAGE 4.x（事件回應）／GOVERN 4.x",
+     "OWASP_LLM": "—", "note": "事故→教訓→折入的持續改進迴圈"}
+  ]
+}

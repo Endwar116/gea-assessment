@@ -1,0 +1,63 @@
+{
+ "repo": "ai-selfcheck",
+ "version": "0.3",
+ "generated": "2026-07-10",
+ "files": [
+  {
+   "file": "R14_預測.md",
+   "bytes": 1301,
+   "sha256_16": "3454baad2eed7dc4"
+  },
+  {
+   "file": "R14_預測_v0.3評分模型.md",
+   "bytes": 1893,
+   "sha256_16": "f1e76c982a1b931d"
+  },
+  {
+   "file": "README.md",
+   "bytes": 2821,
+   "sha256_16": "ee1e9d3b13a7a244"
+  },
+  {
+   "file": "TECH_DOSSIER.md",
+   "bytes": 8064,
+   "sha256_16": "0b6be56fa50717b7"
+  },
+  {
+   "file": "checks/__init__.py",
+   "bytes": 9942,
+   "sha256_16": "0c9bb0a5599e36f5"
+  },
+  {
+   "file": "mappings/framework_mapping.json",
+   "bytes": 2910,
+   "sha256_16": "6ac84a532b2b3e4d"
+  },
+  {
+   "file": "profiles/auditable.json",
+   "bytes": 206,
+   "sha256_16": "abb61748df76bf61"
+  },
+  {
+   "file": "profiles/basic.json",
+   "bytes": 150,
+   "sha256_16": "3feb6187836efa6e"
+  },
+  {
+   "file": "profiles/sustained.json",
+   "bytes": 171,
+   "sha256_16": "029d2f908c1e0b7e"
+  },
+  {
+   "file": "selfcheck.py",
+   "bytes": 9162,
+   "sha256_16": "87647756a3d7e7be"
+  },
+  {
+   "file": "selftest.py",
+   "bytes": 3277,
+   "sha256_16": "5f6ab777558c81d8"
+  }
+ ],
+ "count": 11
+}

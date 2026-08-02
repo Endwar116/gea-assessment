@@ -1,0 +1,118 @@
+{
+ "tool": "ai-selfcheck",
+ "version": "0.3",
+ "generated": "2026-08-02T12:28:09",
+ "target": "/var/folders/m0/sk1gr_q53yl9brck4v3_pvdc0000gn/T/selfcheck_ft_mk_f_d_o/good",
+ "profile": "basic",
+ "profile_label": "級一 基本可控",
+ "agent_track": false,
+ "overall_score": 78,
+ "overall_grade": "🟢綠",
+ "base_60": 60,
+ "depth_40": 18,
+ "system_present": true,
+ "spectrum_score": 78,
+ "checks": [
+  {
+   "id": "logging",
+   "label": "動作紀錄",
+   "tier": "基本",
+   "tracks": [
+    "通用"
+   ],
+   "gate": {
+    "passed": true,
+    "ev": "AI 動作紀錄檔：1 個"
+   },
+   "quality": {
+    "score": 25,
+    "ev": "1/1 抽樣有防竄雜湊欄位"
+   },
+   "risk": "無紀錄＝出事無法回溯；無防竄＝紀錄可被改而不留痕",
+   "_gate_pts": 12.0,
+   "_qual_pts": 2.0,
+   "_dom_total": 14.0
+  },
+  {
+   "id": "secrets",
+   "label": "金鑰隔離",
+   "tier": "基本",
+   "tracks": [
+    "通用"
+   ],
+   "gate": {
+    "passed": true,
+    "ev": "無明文憑證外露 ✓"
+   },
+   "quality": {
+    "score": 80,
+    "ev": "有系統化敏感檔管理設定（1）"
+   },
+   "risk": "憑證外露＝他人冒用你的付費/資料",
+   "_gate_pts": 12.0,
+   "_qual_pts": 6.4,
+   "_dom_total": 18.4
+  },
+  {
+   "id": "guardrail",
+   "label": "危險操作攔截",
+   "tier": "基本",
+   "tracks": [
+    "通用"
+   ],
+   "gate": {
+    "passed": true,
+    "ev": "攔截機制：['gate_guard.py']"
+   },
+   "quality": {
+    "score": 25,
+    "ev": "hook上線=False；攔截腳本 1 支"
+   },
+   "risk": "一次誤操作＝不可逆損失（刪除/誤發/誤付款）",
+   "_gate_pts": 12.0,
+   "_qual_pts": 2.0,
+   "_dom_total": 14.0
+  },
+  {
+   "id": "closure",
+   "label": "完成需核准",
+   "tier": "基本",
+   "tracks": [
+    "通用"
+   ],
+   "gate": {
+    "passed": true,
+    "ev": "結案治理跡象：['governance_verdict.md']"
+   },
+   "quality": {
+    "score": 30,
+    "ev": "結案相關工件 1 個"
+   },
+   "risk": "AI 自己說做完＝報喜不報憂，爛攤子累積",
+   "_gate_pts": 12.0,
+   "_qual_pts": 2.4,
+   "_dom_total": 14.4
+  },
+  {
+   "id": "filerules",
+   "label": "檔案規則",
+   "tier": "基本",
+   "tracks": [
+    "通用"
+   ],
+   "gate": {
+    "passed": true,
+    "ev": "檔案/操作規則：3 份"
+   },
+   "quality": {
+    "score": 70,
+    "ev": "單一真源/生成視圖機制=True"
+   },
+   "risk": "沒有規則＝各做各的，遲早結構崩壞",
+   "_gate_pts": 12.0,
+   "_qual_pts": 5.6,
+   "_dom_total": 17.6
+  }
+ ],
+ "disclaimer": "本工具僅供自我檢視，不構成任何法律/法規/標準之符合性聲明；結果代表基本門檻檢查，非安全無虞保證。"
+}

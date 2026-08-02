@@ -1,0 +1,17 @@
+{
+ "profile": "auditable",
+ "label": "級三 可稽核",
+ "desc": "對外有責任/稽核需求",
+ "domains": [
+  "logging",
+  "secrets",
+  "guardrail",
+  "closure",
+  "filerules",
+  "continuity",
+  "staleness",
+  "integrity",
+  "eventquery",
+  "incident"
+ ]
+}
