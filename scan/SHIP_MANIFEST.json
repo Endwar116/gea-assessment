@@ -1,23 +1,28 @@
 {
- "note": "SHIP=出貨核心（須零內部字）；INTERNAL=內部技術資料（DOSSIER/紅隊，不隨開源出貨）",
+ "note": "所有列出的檔案都是 SHIP（出貨）；internal_refs 由 make_manifest.py 的白名單掃描計算，必須全為 0",
  "files": [
   {
-   "file": "R14_預測.md",
-   "class": "INTERNAL",
-   "internal_refs": 4
-  },
-  {
-   "file": "R14_預測_v0.3評分模型.md",
-   "class": "INTERNAL",
+   "file": ".gitignore",
+   "class": "SHIP",
    "internal_refs": 0
   },
   {
-   "file": "TECH_DOSSIER.md",
-   "class": "INTERNAL",
-   "internal_refs": 13
+   "file": "DEMO_REPORT.md",
+   "class": "SHIP",
+   "internal_refs": 0
   },
   {
-   "file": "MANIFEST.json",
+   "file": "GEA_intro.html",
+   "class": "SHIP",
+   "internal_refs": 0
+  },
+  {
+   "file": "LICENSE",
+   "class": "SHIP",
+   "internal_refs": 0
+  },
+  {
+   "file": "PUBLISH_AUDIT.md",
    "class": "SHIP",
    "internal_refs": 0
   },
@@ -27,32 +32,52 @@
    "internal_refs": 0
   },
   {
-   "file": "checks/__init__.py",
+   "file": "gea_assess.py",
    "class": "SHIP",
    "internal_refs": 0
   },
   {
-   "file": "mappings/framework_mapping.json",
+   "file": "scan/README.md",
    "class": "SHIP",
    "internal_refs": 0
   },
   {
-   "file": "profiles/auditable.json",
+   "file": "scan/make_manifest.py",
    "class": "SHIP",
    "internal_refs": 0
   },
   {
-   "file": "profiles/basic.json",
+   "file": "scan/selfcheck.py",
    "class": "SHIP",
    "internal_refs": 0
   },
   {
-   "file": "profiles/sustained.json",
+   "file": "scan/selftest.py",
    "class": "SHIP",
    "internal_refs": 0
   },
   {
-   "file": "selfcheck.py",
+   "file": "scan/checks/__init__.py",
+   "class": "SHIP",
+   "internal_refs": 0
+  },
+  {
+   "file": "scan/mappings/framework_mapping.json",
+   "class": "SHIP",
+   "internal_refs": 0
+  },
+  {
+   "file": "scan/profiles/auditable.json",
+   "class": "SHIP",
+   "internal_refs": 0
+  },
+  {
+   "file": "scan/profiles/basic.json",
+   "class": "SHIP",
+   "internal_refs": 0
+  },
+  {
+   "file": "scan/profiles/sustained.json",
    "class": "SHIP",
    "internal_refs": 0
   }

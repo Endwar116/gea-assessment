@@ -1,11 +1,11 @@
-# AI 系統自檢工具（ai-selfcheck）
+# GEA S 掃描（產物層自動檢查）
 
-一個**免費、開源、完全在你自己電腦跑**的 AI／Agent 系統體檢工具。
+GEA 的 **S 模式**：一個**免費、開源、完全在你自己電腦跑**的 AI／Agent 系統體檢引擎。
 資料完全不出門、無需連網、無伺服器——`git clone` 下來就能用。
 
 ## 這是什麼
 
-檢查你的 AI 系統有沒有達到「安全、可長期使用、維持基本可控」的門檻，給你**一個分數＋一份風險清單**。
+對你的 AI 系統目錄跑一次，檢查它有沒有達到「安全、可長期使用、維持基本可控」的門檻，給你**一個分數＋一份風險清單**。
 
 - ❌ 不是設計指南（不教你怎麼蓋系統）
 - ❌ 不是法規解讀或合規認證（不替任何法規說話；對照國際框架僅供參考）
@@ -15,9 +15,9 @@
 
 ```bash
 # 需求：Python 3.8+（不裝任何套件，純標準庫）
-git clone <this-repo>
-cd ai-selfcheck
-python3 selfcheck.py /你的AI系統目錄 --profile basic
+git clone https://github.com/Endwar116/gea-assessment
+cd gea-assessment
+python3 scan/selfcheck.py /你的AI系統目錄 --profile basic
 ```
 
 **選項**
@@ -27,11 +27,12 @@ python3 selfcheck.py /你的AI系統目錄 --profile basic
   - `auditable` 級三 可稽核（對外有責任／稽核需求）
 - `--agent`：你的系統是 agent 型部署（Claude Code／自建 agent）→ 開 agent 加分軌
 - `--mapping`：報告尾附 ISO 42001／NIST AI RMF／OWASP LLM 參考對照
+- `--out 目錄`：報告輸出位置（預設 `./gea_report/`；不會寫回工具目錄）
 
-**產出**
+**產出**（都在 `--out` 目錄）
 - 終端摘要（總分＋每項紅黃綠）
-- `report/score.json`（機讀）
-- `report/report_card.html`（給主管看的報告卡，瀏覽器開）
+- `score.json`（機讀）
+- `report_card.html`（給主管看的報告卡，瀏覽器開）
 
 ## 分數怎麼算（60/40 兩層）
 
@@ -45,11 +46,17 @@ python3 selfcheck.py /你的AI系統目錄 --profile basic
 
 ## 檢測的 10 個領域
 
-動作紀錄｜金鑰隔離｜危險操作攔截｜完成需核准｜檔案規則｜中斷可復原｜引用完整｜事件可查｜事故教訓迴圈
+動作紀錄｜金鑰隔離｜危險操作攔截｜完成需核准｜檔案規則｜中斷可復原｜視圖不過期｜引用完整｜事件可查｜事故教訓迴圈
 
 每項都附「怎麼驗證」與「沒有會怎樣」——用看得到的證據回答，不接受「我們有做」的口頭說法。
 
 **引擎測不了的 4 題（人工檢核）**：完整檢核表有 15 題，其中 4 題本質需要人工判斷、本工具不自動評分——①AI 給的數字有依據嗎 ②換掉模型/廠商系統還能跑嗎 ③有人定期抽查 AI 品質嗎 ④對外宣稱有驗證分級嗎。這 4 題請照檢核表人工走一遍。
+
+## 自我驗證
+
+```bash
+python3 scan/selftest.py     # 用固定測資跑引擎；引擎被改壞會 fail
+```
 
 ## 重要聲明
 
@@ -57,7 +64,7 @@ python3 selfcheck.py /你的AI系統目錄 --profile basic
 
 ## 跑完發現問題怎麼辦
 
-紅黃項就是你的風險點。需要協助改善的，可洽（顧問服務資訊）。
+紅黃項就是你的風險點。每個領域的 `risk` 欄寫了「沒有會怎樣」，從紅色項開始處理。
 
 ---
-v0.3　｜　純標準庫　｜　MIT（擬）
+純標準庫　｜　Apache-2.0（與本 repo 相同）
