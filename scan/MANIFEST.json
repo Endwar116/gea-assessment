@@ -2,7 +2,7 @@
  "repo": "gea-assessment",
  "generated_by": "scan/make_manifest.py",
  "rule": "列出 repo 內所有出貨副檔名的檔案（排除 .git/__pycache__/報告輸出與清單本身）；sha256 為完整 64 位",
- "count": 17,
+ "count": 19,
  "files": [
   {
    "file": ".gitignore",
@@ -45,6 +45,16 @@
    "sha256": "528b40e0df5cbbc9770aeca38af04c2915dcba3e030dc218da2c540378284cb5"
   },
   {
+   "file": "audits/2026-10-13_GEA自我審計_gea-pmp-self-audit.md",
+   "bytes": 16135,
+   "sha256": "74819e3e68a328680b1be2efcb0f00446a290d041e54333e211bf8b050269a14"
+  },
+  {
+   "file": "pmp/2026-10-13_GEA出貨審計PMP_gea-release-manufacturing-pmp.md",
+   "bytes": 9135,
+   "sha256": "e781fb00f5cfc4c00fb93cb65026f62c6cc3f577b9793b15bcbc1c997f3849c0"
+  },
+  {
    "file": "scan/README.md",
    "bytes": 5777,
    "sha256": "0d5c686fcfe1485113687f5895c30e0798d75927ab4d4d96a4f290693866902a"
@@ -61,13 +71,13 @@
   },
   {
    "file": "scan/selftest.py",
-   "bytes": 11710,
-   "sha256": "b54b34aab20e6f2c7211347a53f127d1ed67bc1bb589c236d6e13d2c30947d05"
+   "bytes": 11772,
+   "sha256": "cd5ec403d86e2c3eb99014ce4f6aa4d87772612708ddd3c31b4c404483140233"
   },
   {
    "file": "scan/checks/__init__.py",
-   "bytes": 34474,
-   "sha256": "04650817c474052a96ed869107a5c587b5837700a6dd3c81cd978e8e9e4c29ee"
+   "bytes": 34972,
+   "sha256": "38c538cd41e6f8312a53f234b0254622573704b89243b40a8f0d1c88790eca1c"
   },
   {
    "file": "scan/mappings/framework_mapping.json",

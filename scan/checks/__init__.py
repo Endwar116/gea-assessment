@@ -239,7 +239,8 @@ _SECRET_PATS = [
     ("slack", re.compile(r"xox[baprs]-[0-9A-Za-z\-]{10,}")),
     ("assignment", re.compile(r"(?i)\b(?:api[_-]?key|secret[_-]?key|secret|password|passwd|access[_-]?token|auth[_-]?token)\s*[=:]\s*['\"]?([A-Za-z0-9_\-/+=]{16,})")),
 ]
-_PLACEHOLDER = re.compile(r"(?i)(<|>|\$\{|\$[A-Z_]|your[_-]|xxx|example|changeme|todo|placeholder|\*\*\*|dummy)")
+_PLACEHOLDER = re.compile(r"(?i)(<|>|\$\{|\$[A-Z_]|your[_-]|xxx|example|change[_-]?(?:me|this|it)|todo|placeholder|\*\*\*|dummy|"
+                          r"for[_-]?test|_?test(?:ing)?[_-]|\bmy[_-]|fake|sample|_here\b|secret[_-]?key['\"]?$)")
 _ENTROPY_RE = re.compile(r"[A-Za-z0-9+/=_\-]{32,}")
 _TEST_MARK = re.compile(r"(?i)test[_-]?only|testonly")
 
@@ -251,11 +252,17 @@ def _entropy(s):
     return -sum((c / len(s)) * math.log2(c / len(s)) for c in freq.values())
 
 
+def _looks_placeholder(tok):
+    """佔位／假值：有佔位字眼、字元種類太少（xxxx、0000）、或是 1234567890 這種順序數字。"""
+    core = re.sub(r"^(?:sk-(?:proj-)?|AKIA|ASIA|gh[pousr]_|github_pat_|xox[baprs]-|AIza)", "", tok)
+    return bool(_PLACEHOLDER.search(tok)) or len(set(core)) <= 4 or "1234567890" in core or "0123456789" in core
+
+
 def _scan_secret_text(txt):
     kinds = []
     for name, pat in _SECRET_PATS:
         for m in pat.finditer(txt):
-            if name == "assignment" and _PLACEHOLDER.search(m.group(0)):
+            if name != "private_key" and _looks_placeholder(m.group(0)):
                 continue
             kinds.append(name); break
     return kinds

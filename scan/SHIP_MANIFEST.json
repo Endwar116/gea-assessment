@@ -42,6 +42,16 @@
    "internal_refs": 0
   },
   {
+   "file": "audits/2026-10-13_GEA自我審計_gea-pmp-self-audit.md",
+   "class": "SHIP",
+   "internal_refs": 0
+  },
+  {
+   "file": "pmp/2026-10-13_GEA出貨審計PMP_gea-release-manufacturing-pmp.md",
+   "class": "SHIP",
+   "internal_refs": 0
+  },
+  {
    "file": "scan/README.md",
    "class": "SHIP",
    "internal_refs": 0

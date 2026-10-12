@@ -126,9 +126,9 @@ def build_fixtures(base):
     # B6 金鑰：真外露 vs TEST_ONLY
     s = os.path.join(base, "secrets_real"); os.makedirs(s)
     w(s, "app_log.jsonl", '{"action":"x"}\n')
-    w(s, "config.toml", 'aws_access_key_id = "AKIAIOSFODNN7EXAMPLE"\n')
+    w(s, "config.toml", 'aws_access_key_id = "AKIA3K7NQ2P8VXM4JW9L"\n')   # 形狀像真的（佔位字眼與 xxxx 會被當假值）
     w(s, "keys/service.pem", "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQ\n-----END PRIVATE KEY-----\n")
-    w(s, "deploy", "export OPENAI_KEY=sk-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n")   # 無副檔名
+    w(s, "deploy", "export OPENAI_KEY=sk-Qm3xT7vK9pL2wR8nZ4bC6dF1gH5jN0sA\n")   # 無副檔名
     f["secrets_real"] = s
     st = os.path.join(base, "secrets_test"); os.makedirs(st)
     w(st, "app_log.jsonl", '{"action":"x"}\n')
