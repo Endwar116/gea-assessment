@@ -14,6 +14,7 @@ GEA S 掃描 — 地端 60/40 兩層評分引擎 v0.5（stdlib only，零外傳�
 離開碼：0＝完成且達門檻　3＝低於 --min-score　2＝引擎錯誤／用法錯誤（fail-closed：出錯就不給分）
 """
 import argparse
+import html
 import json
 import os
 import sys
@@ -38,19 +39,25 @@ def grade(s):
     return "🟢綠" if s >= 75 else ("🟡黃" if s >= 45 else "🔴紅")
 
 
+def _e(v):
+    """C1：所有進 HTML 的字串都跳脫。ev／target 會帶被掃目錄的檔名與路徑，被掃對象不可信。"""
+    return html.escape(str(v), quote=True)
+
+
 def _write_card(out, out_dir):
-    """由 score.json 生成給老闆看的報告卡 HTML（自足、可離線開）"""
+    """由 score.json 生成給老闆看的報告卡 HTML（自足、可離線開；C1：輸入全跳脫＋CSP 封死腳本與外連）"""
     g = out["overall_score"]
     color = "#16A34A" if g >= 75 else ("#D97706" if g >= 45 else "#DC2626")
     rows_gate = "".join(
-        f'<tr><td>{"✅" if r["gate"]["passed"] else "❌"}</td><td>{r["label"]}</td>'
-        f'<td>{r["gate"]["ev"]}</td><td>{"" if r["gate"]["passed"] else "⚠ " + r["risk"]}</td></tr>'
+        f'<tr><td>{"✅" if r["gate"]["passed"] else "❌"}</td><td>{_e(r["label"])}</td>'
+        f'<td>{_e(r["gate"]["ev"])}</td><td>{"" if r["gate"]["passed"] else "⚠ " + _e(r["risk"])}</td></tr>'
         for r in out["checks"])
     rows_q = "".join(
-        f'<tr><td>{r["quality"]["score"] if r["gate"]["passed"] else "—"}</td><td>{r["label"]}</td>'
-        f'<td>{r["quality"]["ev"] if r["gate"]["passed"] else "基礎未過，不計"}</td></tr>'
+        f'<tr><td>{_e(r["quality"]["score"]) if r["gate"]["passed"] else "—"}</td><td>{_e(r["label"])}</td>'
+        f'<td>{_e(r["quality"]["ev"]) if r["gate"]["passed"] else "基礎未過，不計"}</td></tr>'
         for r in out["checks"])
-    html = f"""<!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8">
+    page = f"""<!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>GEA S 掃描報告卡</title>
 <style>body{{font-family:'Noto Sans TC',sans-serif;background:#F3F4F6;margin:0;padding:0 0 40px;color:#1F2937}}
 .hero{{background:#111827;color:#fff;padding:24px 30px}}.hero h1{{margin:0;font-size:22px}}
@@ -60,18 +67,18 @@ def _write_card(out, out_dir):
 table{{width:100%;border-collapse:collapse;font-size:13px}}td,th{{padding:6px 8px;border-bottom:1px solid #eee;text-align:left;vertical-align:top}}
 .dis{{font-size:11px;color:#94A3B8;margin-top:8px}}</style></head>
 <body><header class="hero"><h1>🛡️ GEA S 掃描報告卡</h1>
-<div class="sub">{out["profile_label"]}{"（agent軌）" if out["agent_track"] else ""}｜{out["generated"]}｜對象：{out["target"]}｜run {out["run_id"]}</div></header>
+<div class="sub">{_e(out["profile_label"])}{"（agent軌）" if out["agent_track"] else ""}｜{_e(out["generated"])}｜對象：{_e(out["target"])}｜run {_e(out["run_id"])}</div></header>
 <main class="wrap">
-<div class="card" style="text-align:center"><div class="score">{g}<span style="font-size:24px">/100</span></div>
-<div class="sub">門檻分＝基礎 {out["base_60"]}/60 ＋ 品質 {out["depth_40"]}/40　｜　成熟度光譜 {out["spectrum_score"]}/100
+<div class="card" style="text-align:center"><div class="score">{_e(g)}<span style="font-size:24px">/100</span></div>
+<div class="sub">門檻分＝基礎 {_e(out["base_60"])}/60 ＋ 品質 {_e(out["depth_40"])}/40　｜　成熟度光譜 {_e(out["spectrum_score"])}/100
 {"<br><b style='color:#DC2626'>⚠ 未偵測到運作中的 AI 系統</b>" if not out.get("system_present", True) else ""}</div></div>
 <div class="card"><b>① 基礎門檻（有沒有做這幾件事）</b>
 <table><tr><th></th><th>項目</th><th>現況</th><th>風險</th></tr>{rows_gate}</table></div>
 <div class="card"><b>② 品質深化（做得多好）</b>
 <table><tr><th>分</th><th>項目</th><th>說明</th></tr>{rows_q}</table></div>
-<div class="card dis">{out["disclaimer"]}</div>
+<div class="card dis">{_e(out["disclaimer"])}</div>
 </main></body></html>"""
-    open(os.path.join(out_dir, "report_card.html"), "w", encoding="utf-8").write(html)
+    open(os.path.join(out_dir, "report_card.html"), "w", encoding="utf-8").write(page)
 
 
 def assess(root, profile, agent=False, probe=False):

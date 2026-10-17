@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-18 — S 掃描 v0.5.1（計畫 C 第一項：報告卡注入修補 C1）
+
+根因：`scan/selfcheck.py` 的報告卡把被掃目錄的檔名、路徑、`ev` 字串直接拼進 HTML，沒有跳脫。
+被掃目錄裡一個檔名含 `<img src=x onerror=…>` 的檔，主管用瀏覽器開 `report_card.html` 時就會執行。
+被掃對象不可信，是掃描器的輸入，不是掃描器的一部分。
+
+| ID | 變更 | 驗收（`scan/selftest.py`） |
+|---|---|---|
+| C1 | 所有進報告卡的字串過 `html.escape`（label、ev、risk、target、run_id、generated、disclaimer、分數）；報告卡加 CSP `default-src 'none'; style-src 'unsafe-inline'; img-src data:`，封死腳本與外連 | 新測資：檔名帶 `<img … onerror>` 的 `.env`；卡上無原始 `<img`、有 `&lt;img`；卡帶 CSP。修補前兩項紅、修補後全綠 |
+
+引擎評分邏輯未改；同一輸入同一輸出（B9）仍過。發現來源：IMCC `雲端德/proposals/2026-10-17_GEA計畫C_v2_gea-plan-c-v2.md` §8。安安 2026-10-18 裁定「修」。
+
 ## 2026-10-13 — S 掃描 v0.5、Q 問卷 v0.2.0（計畫 B：偵測層改為內容導向、fail-closed）
 
 根因：舊引擎靠「檔名」給分。6 個檔名正確、內容為空的檔案可以拿 78 分；

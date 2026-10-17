@@ -24,6 +24,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 FAILS = []
 
 
+LAST_OUT = None   # 最近一次 run() 的輸出目錄（C1 用）
+
+
 def run(target, profile="basic", agent=False, probe=False, min_score=None, expect_rc=0):
     """跑一次 selfcheck；回傳 (rc, score 或 None)。rc 不符預期、run_id 不符都記 FAIL。"""
     out = tempfile.mkdtemp(prefix="selfcheck_out_")
@@ -47,6 +50,8 @@ def run(target, profile="basic", agent=False, probe=False, min_score=None, expec
     res = json.load(open(sp, encoding="utf-8"))
     if res.get("run_id") != rid:
         FAILS.append(f"run_id 不符（讀到殘留輸出？）：{target}"); return p.returncode, None
+    global LAST_OUT
+    LAST_OUT = out   # 給 C1 讀 report_card.html；不放進 res，以免干擾 B9 的兩次輸出比對
     return p.returncode, res
 
 
@@ -142,6 +147,14 @@ def build_fixtures(base):
     f["links"] = l
     # B4 hook 沒擋
     f["hook_allow"] = build_good(base, "hook_allow", hook=HOOK_ALLOW)
+    # C1 報告卡注入：被掃目錄的檔名帶 HTML，報告卡必須跳脫（Windows 不允許 < > 當檔名，建不出來就略過）
+    x = os.path.join(base, "xss"); os.makedirs(x)
+    w(x, "app_log.jsonl", '{"action":"x"}\n')
+    try:
+        w(x, 'evil <img src=x onerror="alert(1)">.env', 'aws_access_key_id = "AKIA3K7NQ2P8VXM4JW9L"\n')
+        f["xss"] = x
+    except OSError:
+        f["xss"] = None
     return f
 
 
@@ -174,6 +187,15 @@ def main():
         _, good = run(f["good"]);         good and check("治理完整≥65", good["overall_score"] >= 65, f"{good['overall_score']}")
         good and check("治理完整案基礎門檻全過", all(c["gate"]["passed"] for c in good["checks"]))
         _, r = run(f["named_empty"]);     r and check("B2 名字對、內容空 ≤30（防灌分）", r["overall_score"] <= 30, f"{r['overall_score']}")
+        print("── 報告卡安全 ──")
+        if f["xss"]:
+            _, r = run(f["xss"])
+            card = r and open(os.path.join(LAST_OUT, "report_card.html"), encoding="utf-8").read()
+            r and check("C1 被掃檔名的 HTML 在報告卡裡被跳脫（無原始 <img 標籤、有 &lt;img）", "<img" not in card and "&lt;img" in card,
+                        "原始標籤出現在卡上" if "<img" in card else "")
+            r and check("C1 報告卡帶 CSP（default-src 'none'）", "Content-Security-Policy" in card and "default-src 'none'" in card)
+        else:
+            print("  ⊘ C1 此平台無法建立含 < > 的檔名，略過")
         print("── 內容判定 ──")
         good and check("B3 真雜湊鏈全重算＝100", dom(good, "logging")["quality"]["score"] == 100, dom(good, "logging")["quality"]["ev"])
         _, r = run(f["tampered"]);        r and check("B3 竄改一字元→鏈斷、品質 0", dom(r, "logging")["quality"]["score"] == 0 and "鏈斷" in dom(r, "logging")["quality"]["ev"], dom(r, "logging")["quality"]["ev"])

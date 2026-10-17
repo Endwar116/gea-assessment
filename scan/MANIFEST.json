@@ -11,8 +11,8 @@
   },
   {
    "file": "CHANGELOG.md",
-   "bytes": 3107,
-   "sha256": "06527f2d3b6ff2ebd2bf5ba4eba7c5aaf7c2808bbb84ad7a8051ed922d5e2624"
+   "bytes": 4166,
+   "sha256": "8fce46e68321c77fe294efc1b1d008b0990e00195fe440b44474e06738772327"
   },
   {
    "file": "DEMO_REPORT.md",
@@ -66,13 +66,13 @@
   },
   {
    "file": "scan/selfcheck.py",
-   "bytes": 10603,
-   "sha256": "4103b5cd14bfd30e451aa3a3d69254e6d4b30120864e2aa104a503fa9dfebac5"
+   "bytes": 11024,
+   "sha256": "ba0d8cab3a9131f5de20292f4a8b8808ce0e18297e35a7f393ae409e48038b60"
   },
   {
    "file": "scan/selftest.py",
-   "bytes": 11772,
-   "sha256": "cd5ec403d86e2c3eb99014ce4f6aa4d87772612708ddd3c31b4c404483140233"
+   "bytes": 13055,
+   "sha256": "0be0b15ce963a9516d08291df382ddefc87343dfccbdb95b06998e70095e266d"
   },
   {
    "file": "scan/checks/__init__.py",
