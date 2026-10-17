@@ -4,7 +4,7 @@
 GEA — 免費 AI 治理環境評測（Governance Environment Assessment）
 ================================================================
 
-把你的 AI 系統（agent、自動化管線、AI 應用）對照 20 個有真實失效證據的
+把你的 AI 系統（agent、自動化管線、AI 應用）對照 24 個有真實失效證據的
 指標逐項檢查，產出加權分級報告，並告訴你每個缺口可以怎麼補。
 
 ## 30 秒上手
@@ -173,7 +173,8 @@ INDICATORS = [
          fix="推前必拉；衝突即停不強推；人類撰寫區段加程式保護標記，自動工具不得觸碰。"),
     dict(id="6.3", dim="D6", what="請他人（人或 agent）投入時間前，資源擁有者知情",
          why="review 與協作消耗的是真實資源（token、時間），擁有者不知情＝資源被代花。",
-         evidence="生態規則 R22 的由來：agent 間互相請求 review 會直接消耗使用者付費的額度。",
+         evidence="實測：一個多 agent 生態裡，agent 之間互相請求 review，直接消耗了使用者付費的額度，"
+                  "使用者事後才知道；這條規則就是從那次事件來的。",
          how="你的系統發起「請求他人工作」前，有沒有告知／授權步驟？",
          fix="請求類訊息走授權流程；一般通知不受限（別把告知也官僚化）。"),
     dict(id="6.4", dim="D6", what="協作討論串有生命週期封閉：每個 thread 有明確結案狀態",
@@ -276,7 +277,7 @@ def render_md(rep):
             if note:
                 L.append(f"- 受測方備註：{note}")
     L.append("\n---\n*每個指標都錨定一個真實發生、有落盤紀錄的失效。"
-             "方法論與證據出處：SIC-SH `spec/GOVERNANCE_ASSESSMENT_SYSTEM_v0.1.md`*")
+             "方法論與證據出處：README「這個評測跟別的有什麼不同」與各指標的證據欄。*")
     return "\n".join(L)
 
 
@@ -297,7 +298,8 @@ def interactive():
     return answers, notes
 
 
-DEMO_ANSWERS = {i["id"]: v for i, v in zip(INDICATORS, [2, 1, 0, 1, 2, 1, 0, 1, 2, 0, 1, 2, 1, 0, 2, 1, 1, 0, 1, 2, 0, 1, 1])}
+DEMO_ANSWERS = {i["id"]: v for i, v in zip(INDICATORS, [2, 1, 0, 1, 2, 1, 0, 1, 2, 0, 1, 2, 1, 0, 2, 1, 1, 0, 1, 2, 0, 1, 1, 0])}
+assert len(DEMO_ANSWERS) == len(INDICATORS), "DEMO_ANSWERS 必須覆蓋全部指標"
 
 
 def self_test():
@@ -354,7 +356,7 @@ def main():
 
     if a.self_test:
         return self_test()
-    if self_test() != 0:      # 出報告前先自證（HL-6）
+    if self_test() != 0:      # 出報告前先自證：驗證器抓不到壞樣本就沒資格出報告
         return 2
 
     if a.demo:

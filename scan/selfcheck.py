@@ -10,7 +10,7 @@ AI 系統自檢工具 — 地端 60/40 兩層評分引擎 v0.3（stdlib only，�
   · 後 40 分＝品質深化（每領域 quality 0-100 × 該領域品質分；且 gate fail→品質 0）
   · 空系統（全 gate fail）≈ 0 分
 
-用法：python3 selfcheck.py <目錄> [--profile basic|sustained|auditable] [--agent]
+用法：python3 selfcheck.py <目錄> [--profile basic|sustained|auditable] [--agent] [--out 報告目錄]
 """
 import argparse
 import json
@@ -31,7 +31,7 @@ def grade(s):
     return "🟢綠" if s >= 75 else ("🟡黃" if s >= 45 else "🔴紅")
 
 
-def _write_card(out):
+def _write_card(out, out_dir):
     """由 score.json 生成給老闆看的報告卡 HTML（自足、可離線開）"""
     g = out["overall_score"]
     color = "#16A34A" if g >= 75 else ("#D97706" if g >= 45 else "#DC2626")
@@ -64,7 +64,7 @@ table{{width:100%;border-collapse:collapse;font-size:13px}}td,th{{padding:6px 8p
 <table><tr><th>分</th><th>項目</th><th>說明</th></tr>{rows_q}</table></div>
 <div class="card dis">{out["disclaimer"]}</div>
 </main></body></html>"""
-    open(os.path.join(HERE, "report", "report_card.html"), "w", encoding="utf-8").write(html)
+    open(os.path.join(out_dir, "report_card.html"), "w", encoding="utf-8").write(html)
 
 
 def main():
@@ -73,6 +73,7 @@ def main():
     ap.add_argument("--profile", default="basic", choices=["basic", "sustained", "auditable"])
     ap.add_argument("--agent", action="store_true")
     ap.add_argument("--mapping", action="store_true", help="報告尾附 ISO42001/NIST/OWASP 參考對照")
+    ap.add_argument("--out", default="./gea_report", help="報告輸出目錄（預設 ./gea_report/，不寫回工具目錄）")
     a = ap.parse_args()
     root = os.path.abspath(a.target)
     if not os.path.isdir(root):
@@ -115,15 +116,16 @@ def main():
     if not system_present:
         spectrum = round(spectrum * 0.1)
     ts = datetime.now(timezone(timedelta(hours=8))).isoformat()[:19]
-    out = {"tool": "ai-selfcheck", "version": "0.3", "generated": ts, "target": root,
+    out = {"tool": "gea-scan", "version": "0.4", "generated": ts, "target": root,
            "profile": prof["profile"], "profile_label": prof["label"], "agent_track": a.agent,
            "overall_score": overall, "overall_grade": grade(overall),
            "base_60": base, "depth_40": depth, "system_present": system_present,
            "spectrum_score": spectrum, "checks": results,
            "disclaimer": "本工具僅供自我檢視，不構成任何法律/法規/標準之符合性聲明；結果代表基本門檻檢查，非安全無虞保證。"}
-    os.makedirs(os.path.join(HERE, "report"), exist_ok=True)
-    json.dump(out, open(os.path.join(HERE, "report", "score.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    _write_card(out)
+    out_dir = os.path.abspath(a.out)
+    os.makedirs(out_dir, exist_ok=True)
+    json.dump(out, open(os.path.join(out_dir, "score.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    _write_card(out, out_dir)
 
     print("=" * 64)
     print(f"  AI 系統自檢報告　{prof['label']}{'（agent軌）' if a.agent else ''}")
@@ -146,7 +148,7 @@ def main():
         else:
             print(f"  ⊘ {r['label']:8s} 基礎未過，品質不計")
     print("\n" + "=" * 64)
-    print("  機讀報告：report/score.json　｜　紅黃/❌項＝你的風險點，建議優先處理")
+    print(f"  機讀報告：{os.path.join(out_dir, 'score.json')}　｜　紅黃/❌項＝你的風險點，建議優先處理")
     print("  " + out["disclaimer"])
     print("=" * 64)
     if a.mapping:

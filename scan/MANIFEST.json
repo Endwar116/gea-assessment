@@ -1,63 +1,88 @@
 {
- "repo": "ai-selfcheck",
- "version": "0.3",
- "generated": "2026-07-10",
+ "repo": "gea-assessment",
+ "generated_by": "scan/make_manifest.py",
+ "rule": "列出 repo 內所有出貨副檔名的檔案（排除 .git/__pycache__/報告輸出與清單本身）；sha256 為完整 64 位",
+ "count": 16,
  "files": [
   {
-   "file": "R14_預測.md",
-   "bytes": 1301,
-   "sha256_16": "3454baad2eed7dc4"
+   "file": ".gitignore",
+   "bytes": 46,
+   "sha256": "953e97f5ed425475ae44896d59b528490564c078d89535aa868f6c69acec0779"
   },
   {
-   "file": "R14_預測_v0.3評分模型.md",
-   "bytes": 1893,
-   "sha256_16": "f1e76c982a1b931d"
+   "file": "DEMO_REPORT.md",
+   "bytes": 11488,
+   "sha256": "f993a4f6d59686d2586b307888e606337641a75582d474960ebbdcfc4d575b58"
+  },
+  {
+   "file": "GEA_intro.html",
+   "bytes": 23545,
+   "sha256": "38f2f5047a5f58b4c0a98909e292c1d8b15a30b5c592e900e74ce4f82b2ee49f"
+  },
+  {
+   "file": "LICENSE",
+   "bytes": 577,
+   "sha256": "d5ceb6c579ee0deb5e6fe44cca73041b7905b4f36eb7b93458d7b0db3f184473"
+  },
+  {
+   "file": "PUBLISH_AUDIT.md",
+   "bytes": 4109,
+   "sha256": "46b58674747c34e4ee123efbe736fc9ee5bd3f9558c290f1350cfdf7977a01b4"
   },
   {
    "file": "README.md",
-   "bytes": 2821,
-   "sha256_16": "ee1e9d3b13a7a244"
+   "bytes": 4886,
+   "sha256": "e2e3d0a2a59565e2aa0196d9083583b15902dcc449de610234180933be3bafb9"
   },
   {
-   "file": "TECH_DOSSIER.md",
-   "bytes": 8064,
-   "sha256_16": "0b6be56fa50717b7"
+   "file": "gea_assess.py",
+   "bytes": 27502,
+   "sha256": "54e803b79f1eaedccd891dfbb781cb9559fc67036f7f83c0a0c20244867afd76"
   },
   {
-   "file": "checks/__init__.py",
-   "bytes": 9942,
-   "sha256_16": "0c9bb0a5599e36f5"
+   "file": "scan/README.md",
+   "bytes": 3512,
+   "sha256": "672c0d7d37d9de8d6988c774174d4871ce5b98dd152ee08f7255f3c71d5cb43f"
   },
   {
-   "file": "mappings/framework_mapping.json",
-   "bytes": 2910,
-   "sha256_16": "6ac84a532b2b3e4d"
+   "file": "scan/make_manifest.py",
+   "bytes": 3082,
+   "sha256": "603b744c46fdeb3c840f38801fe6720c71d8b9f9a7536aba6c689a53b70619b6"
   },
   {
-   "file": "profiles/auditable.json",
-   "bytes": 206,
-   "sha256_16": "abb61748df76bf61"
+   "file": "scan/selfcheck.py",
+   "bytes": 9350,
+   "sha256": "cce79fe12c33c29ea9f043cfa2fc321f3132e57a8a2dcdc5a275b70284302a0b"
   },
   {
-   "file": "profiles/basic.json",
+   "file": "scan/selftest.py",
+   "bytes": 3332,
+   "sha256": "bab899b145c688ef61224e7b92d7807bcd1fa7820ceda54f9ca5fd9c0407e060"
+  },
+  {
+   "file": "scan/checks/__init__.py",
+   "bytes": 11958,
+   "sha256": "14194941d5b160aa5670dc335ae39e982bfe143889b1db0b113864cf2b85fa05"
+  },
+  {
+   "file": "scan/mappings/framework_mapping.json",
+   "bytes": 3191,
+   "sha256": "0c8ea91b929b8b62f4cda174c17c95efe77ec230194329f8a434020e43130d7a"
+  },
+  {
+   "file": "scan/profiles/auditable.json",
+   "bytes": 260,
+   "sha256": "df978720e737a297d2312051dbe0f51bb78ba127b6d7c9fc11ce8cba486d6bca"
+  },
+  {
+   "file": "scan/profiles/basic.json",
    "bytes": 150,
-   "sha256_16": "3feb6187836efa6e"
+   "sha256": "3feb6187836efa6e8ca09bd0da44eece33562dc349d5f1be23607876719307fe"
   },
   {
-   "file": "profiles/sustained.json",
-   "bytes": 171,
-   "sha256_16": "029d2f908c1e0b7e"
-  },
-  {
-   "file": "selfcheck.py",
-   "bytes": 9162,
-   "sha256_16": "87647756a3d7e7be"
-  },
-  {
-   "file": "selftest.py",
-   "bytes": 3277,
-   "sha256_16": "5f6ab777558c81d8"
+   "file": "scan/profiles/sustained.json",
+   "bytes": 219,
+   "sha256": "251dc9072be54ca0ef22716ac608ff93496098f54d21b295b1174f2bbedef455"
   }
- ],
- "count": 11
+ ]
 }

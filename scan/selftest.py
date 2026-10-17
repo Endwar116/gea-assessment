@@ -18,11 +18,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 
 def run(target, profile="basic", agent=False):
-    cmd = [sys.executable, os.path.join(HERE, "selfcheck.py"), target, "--profile", profile]
+    out = tempfile.mkdtemp(prefix="selfcheck_out_")
+    cmd = [sys.executable, os.path.join(HERE, "selfcheck.py"), target, "--profile", profile, "--out", out]
     if agent:
         cmd.append("--agent")
     subprocess.run(cmd, capture_output=True, text=True)
-    return json.load(open(os.path.join(HERE, "report", "score.json"), encoding="utf-8"))
+    return json.load(open(os.path.join(out, "score.json"), encoding="utf-8"))
 
 
 def build_fixtures(base):

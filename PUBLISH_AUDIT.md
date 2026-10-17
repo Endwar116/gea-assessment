@@ -16,3 +16,24 @@
 
 **明確不包含**：任何第三方程式碼、任何內部協定實作、任何個人資料、
 任何未經擁有者同意之技術。SIC-JS 協定本體**不隨附**——本工具僅為評測問卷與計分引擎。
+
+---
+
+## 勘誤 Erratum｜2026-10-13
+
+上面 2026-08-02 那段**原文保留，不改寫**。以下照實記錄當時的宣稱哪些不成立，以及這次怎麼處理。
+The 2026-08-02 section above is kept verbatim (no backfill). This entry records which of its claims did not hold, and what was done.
+
+| 當時的宣稱 Claim (2026-08-02) | 實際 Observed (2026-10-13) | 處理 Action |
+|---|---|---|
+| 「內部名稱掃描：清除後複掃 0 命中」 | `scan/TECH_DOSSIER.md` 自標 INTERNAL，含內部代號與內部路徑；`gea_assess.py` 頁尾引用不公開的規格檔、註解含內部代號；指標 6.3 證據欄引用內部規則編號 | `TECH_DOSSIER.md` 自 HEAD 移除（git 歷史仍可查，不改寫歷史）；`gea_assess.py` 三處改寫為不依賴內部文件的描述 |
+| 「機密掃描：0 命中」 | 本 repo 本身無憑證（維持）。但 S 掃描引擎對 `.pem`／`.key` 不掃，拿去掃別的目錄會把私鑰報成「無明文憑證外露 ✓」 | 引擎修正另案（見 `CHANGELOG` 之 B 系列） |
+| 「selftest 4/4」 | selftest 不查子程序離開碼、會讀上一次殘留的 `score.json`，引擎壞掉仍可能部分 PASS；而且用 6 個只有檔名正確、內容為空的檔案就能拿 78 分 | selftest 改為 fail-closed，加入「名字對、內容空」防灌分測資（B 系列） |
+| `MANIFEST.json` 列 11 檔（含兩份不在 repo 內的 `R14_預測*.md`），hash 只有 16 位 | 清單與實際出貨檔不符 | 以 `scan/make_manifest.py` 用完整 sha256 重新產生，只列實際存在的檔案；`--check` 可重算比對 |
+| `scan/README.md` 寫「MIT（擬）」、叫使用者 `cd ai-selfcheck` | repo 授權是 Apache-2.0；目錄名是 `gea-assessment`，指令路徑錯 | 已修正 |
+| 「24 指標」 | `gea_assess.py` 模組說明寫 20 個；DEMO 只答 23 題（7.2 永遠沒答） | 數字對齊 24；DEMO 答滿 24/24 |
+| 對照表 9 領域 | 引擎實際 10 個領域，缺 staleness | 補上 |
+
+**出貨前把 `scan/report/`（上次跑的輸出）和 `__pycache__` 一起 commit 進了 repo**，這次移出版控並加 `.gitignore`。
+
+記錄者：GEA 維護者（Claude Code 雲端 session，受委託方指示）。本段依「no-backfill」原則追加，不修改上方既有段落。
