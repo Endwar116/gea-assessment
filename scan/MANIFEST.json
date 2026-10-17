@@ -2,7 +2,7 @@
  "repo": "gea-assessment",
  "generated_by": "scan/make_manifest.py",
  "rule": "列出 repo 內所有出貨副檔名的檔案（排除 .git/__pycache__/報告輸出與清單本身）；sha256 為完整 64 位",
- "count": 16,
+ "count": 19,
  "files": [
   {
    "file": ".gitignore",
@@ -10,9 +10,14 @@
    "sha256": "953e97f5ed425475ae44896d59b528490564c078d89535aa868f6c69acec0779"
   },
   {
+   "file": "CHANGELOG.md",
+   "bytes": 3107,
+   "sha256": "06527f2d3b6ff2ebd2bf5ba4eba7c5aaf7c2808bbb84ad7a8051ed922d5e2624"
+  },
+  {
    "file": "DEMO_REPORT.md",
-   "bytes": 11488,
-   "sha256": "f993a4f6d59686d2586b307888e606337641a75582d474960ebbdcfc4d575b58"
+   "bytes": 13676,
+   "sha256": "358161f8d1d3359557c5d48e238c799413d5a65d9f203588ae5862d3d1374920"
   },
   {
    "file": "GEA_intro.html",
@@ -31,18 +36,28 @@
   },
   {
    "file": "README.md",
-   "bytes": 4886,
-   "sha256": "e2e3d0a2a59565e2aa0196d9083583b15902dcc449de610234180933be3bafb9"
+   "bytes": 5608,
+   "sha256": "fe5138bded4f9173cba12906ac6450df3cc989ed0778054d0f241ea237b0353c"
   },
   {
    "file": "gea_assess.py",
-   "bytes": 27502,
-   "sha256": "54e803b79f1eaedccd891dfbb781cb9559fc67036f7f83c0a0c20244867afd76"
+   "bytes": 33033,
+   "sha256": "528b40e0df5cbbc9770aeca38af04c2915dcba3e030dc218da2c540378284cb5"
+  },
+  {
+   "file": "audits/2026-10-13_GEA自我審計_gea-pmp-self-audit.md",
+   "bytes": 16135,
+   "sha256": "74819e3e68a328680b1be2efcb0f00446a290d041e54333e211bf8b050269a14"
+  },
+  {
+   "file": "pmp/2026-10-13_GEA出貨審計PMP_gea-release-manufacturing-pmp.md",
+   "bytes": 9135,
+   "sha256": "e781fb00f5cfc4c00fb93cb65026f62c6cc3f577b9793b15bcbc1c997f3849c0"
   },
   {
    "file": "scan/README.md",
-   "bytes": 3512,
-   "sha256": "672c0d7d37d9de8d6988c774174d4871ce5b98dd152ee08f7255f3c71d5cb43f"
+   "bytes": 5777,
+   "sha256": "0d5c686fcfe1485113687f5895c30e0798d75927ab4d4d96a4f290693866902a"
   },
   {
    "file": "scan/make_manifest.py",
@@ -51,18 +66,18 @@
   },
   {
    "file": "scan/selfcheck.py",
-   "bytes": 9350,
-   "sha256": "cce79fe12c33c29ea9f043cfa2fc321f3132e57a8a2dcdc5a275b70284302a0b"
+   "bytes": 10603,
+   "sha256": "4103b5cd14bfd30e451aa3a3d69254e6d4b30120864e2aa104a503fa9dfebac5"
   },
   {
    "file": "scan/selftest.py",
-   "bytes": 3332,
-   "sha256": "bab899b145c688ef61224e7b92d7807bcd1fa7820ceda54f9ca5fd9c0407e060"
+   "bytes": 11772,
+   "sha256": "cd5ec403d86e2c3eb99014ce4f6aa4d87772612708ddd3c31b4c404483140233"
   },
   {
    "file": "scan/checks/__init__.py",
-   "bytes": 11958,
-   "sha256": "14194941d5b160aa5670dc335ae39e982bfe143889b1db0b113864cf2b85fa05"
+   "bytes": 34972,
+   "sha256": "38c538cd41e6f8312a53f234b0254622573704b89243b40a8f0d1c88790eca1c"
   },
   {
    "file": "scan/mappings/framework_mapping.json",

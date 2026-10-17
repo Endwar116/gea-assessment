@@ -14,6 +14,12 @@ GEA — 免費 AI 治理環境評測（Governance Environment Assessment）
     python3 gea_assess.py --answers a.json --out report.md
     python3 gea_assess.py --self-test     # 驗證本工具自身
 
+## 作答檔格式（v0.2 起可附證據）
+
+    {"1.1": 2,                                      # 只給分數：2 分會因為沒證據降成 1（宣稱）
+     "1.2": {"score": 2, "evidence": "ci/verify.sh 離開碼非零即中止"},   # 2 分＋證據 → 以 2 計
+     "_notes": {"1.3": "備註"}}
+
 ## 三個誠實原則（讀完再用）
 
 1. **每個指標都錨定一個真實發生過的失效**——不是理想清單，是事故清單的反面。
@@ -22,6 +28,8 @@ GEA — 免費 AI 治理環境評測（Governance Environment Assessment）
    「有規則沒有閘＝半分」是刻意的：規則寫在文件裡不會攔截任何事。
 3. **本評測回答「你的環境擋得住哪些已知失效」，不回答「你的系統好不好」。**
    滿分也不代表安全——只代表已知的坑都有蓋子。未知的坑不在任何評測裡。
+4. **宣稱不等於驗證**：答 2（程式層防住）必須附一個證據（路徑或指令）。
+   沒附證據的 2 分以 1 分計，報告會分開列出「有證據」和「只宣稱」。
 
 （方法論：60 分質詢法——對每個看似完備的環節問「如果這只值 60 分，
 剩下 40 分的失效空間在哪」，新失效假說須被實際觀察到才進入計分。）
@@ -31,7 +39,7 @@ import datetime
 import json
 import sys
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 
 # ═══════════════════════════════════════════════════════════════
 # 指標庫。每項欄位：
@@ -205,22 +213,67 @@ INDICATORS = [
 ]
 
 
-def grade(answers, notes=None):
-    """answers: {indicator_id: 0|1|2}；回傳完整報告 dict"""
+def normalize_answers(data):
+    """把作答 JSON 正規化成 (answers, evidence, notes, errors)。
+    每題可以是 0|1|2，或 {"score": 0|1|2, "evidence": "路徑或指令"}。
+    任何非法值都回報清楚的錯誤訊息，不猜、不靜默修正。"""
+    ids = {i["id"] for i in INDICATORS}
+    answers, evidence, errors = {}, {}, []
+    if not isinstance(data, dict):
+        return {}, {}, {}, ["作答檔必須是 JSON 物件 {指標id: 作答}"]
+    notes = data.get("_notes", {})
+    if not isinstance(notes, dict):
+        errors.append("_notes 必須是物件 {指標id: 備註}")
+        notes = {}
+    for k, v in data.items():
+        if k.startswith("_"):
+            continue
+        if k not in ids:
+            errors.append(f"未知的指標 id：{k!r}")
+            continue
+        ev = None
+        if isinstance(v, dict):
+            ev = v.get("evidence")
+            v = v.get("score")
+            if ev is not None and not (isinstance(ev, str) and ev.strip()):
+                errors.append(f"[{k}] evidence 必須是非空字串")
+                continue
+        if isinstance(v, str) and v.strip() in ("0", "1", "2"):
+            v = int(v)
+        if isinstance(v, bool) or not isinstance(v, int) or v not in (0, 1, 2):
+            errors.append(f"[{k}] 作答必須是 0、1 或 2（收到 {v!r}）")
+            continue
+        answers[k] = v
+        if ev:
+            evidence[k] = ev.strip()
+    return answers, evidence, notes, errors
+
+
+def grade(answers, notes=None, evidence=None):
+    """answers: {indicator_id: 0|1|2}；evidence: {indicator_id: 證據}；回傳完整報告 dict
+    規則：2 分沒附證據 → 以 1 分計並標為「宣稱」（claimed）。"""
     notes = notes or {}
+    evidence = evidence or {}
     per_dim = {d: {"got": 0.0, "max": 0.0, "items": []} for d in DIMENSIONS}
-    unanswered = []
+    unanswered, claimed, evidenced = [], [], []
     for ind in INDICATORS:
         a = answers.get(ind["id"])
         dim = per_dim[ind["dim"]]
         dim["max"] += 2
         if a is None:
             unanswered.append(ind["id"])
-            dim["items"].append((ind, None))
+            dim["items"].append((ind, None, False))
             continue
         a = max(0, min(2, int(a)))
+        is_claim = False
+        if a == 2:
+            if evidence.get(ind["id"]):
+                evidenced.append(ind["id"])
+            else:
+                a, is_claim = 1, True
+                claimed.append(ind["id"])
         dim["got"] += a
-        dim["items"].append((ind, a))
+        dim["items"].append((ind, a, is_claim))
 
     total = 0.0
     dim_scores = {}
@@ -240,6 +293,9 @@ def grade(answers, notes=None):
         "gradable": len(INDICATORS),
         "answer_rate": round(answered / len(INDICATORS), 3),
         "unanswered": unanswered,
+        "claimed": claimed,
+        "evidenced": evidenced,
+        "evidence": evidence,
         "dimensions": {d: {"name": DIMENSIONS[d]["name"], "group": DIMENSIONS[d]["group"],
                            "weight": DIMENSIONS[d]["weight"],
                            "rate": round(dim_scores[d]["rate"], 3),
@@ -253,9 +309,11 @@ def grade(answers, notes=None):
 def render_md(rep):
     L = [f"# GEA 治理環境評測報告 v{rep['version']}",
          f"\n**日期**：{rep['date']}　**總分**：**{rep['total_score']} / 100**"
-         f"　**作答率**：{rep['answered']}/{rep['gradable']}",
-         "\n> ⚠️ 兩個必讀：①分數是「已知失效防住比例」的加權，**不是安全保證**——"
-         "未知的坑不在任何評測裡。②作答率與總分**必須一起看**：沒答的題不計分也不補分。",
+         f"　**作答率**：{rep['answered']}/{rep['gradable']}"
+         f"　**有證據的滿分**：{len(rep['evidenced'])}　**只宣稱（以 1 計）**：{len(rep['claimed'])}",
+         "\n> ⚠️ 三個必讀：①分數是「已知失效防住比例」的加權，**不是安全保證**——"
+         "未知的坑不在任何評測裡。②作答率與總分**必須一起看**：沒答的題不計分也不補分。"
+         "③答 2 分（程式層防住）要附證據；沒附的以 1 分計，下面會標「宣稱」。",
          "\n## 各維度"]
     L.append("\n| 維度 | 群組 | 權重 | 達成率 | 加權得分 |")
     L.append("|---|---|---|---|---|")
@@ -265,10 +323,16 @@ def render_md(rep):
     L.append("\n## 逐項結果與修法\n")
     for d, v in rep["per_dim_items"].items():
         L.append(f"### {d}｜{DIMENSIONS[d]['name']}")
-        for ind, a in v["items"]:
+        for ind, a, is_claim in v["items"]:
             mark = {2: "✅ 程式層防住", 1: "⚠️ 有規則但靠自律", 0: "🔴 無防護",
                     None: "⬜ 未作答"}[a]
+            if is_claim:
+                mark = "⚠️ 宣稱程式層防住，未附證據（以 1 計）"
             L.append(f"\n**[{ind['id']}] {ind['what']}** — {mark}")
+            if a == 2:
+                L.append(f"- 受測方證據：{rep['evidence'][ind['id']]}")
+            if is_claim:
+                L.append("- 補證據：附上路徑或指令（驗證腳本、離開碼紀錄、hook 設定…），才能以 2 計。宣稱不等於驗證。")
             if a in (0, 1):
                 L.append(f"- 為什麼重要：{ind['why']}")
                 L.append(f"- 證據（真實失效）：{ind['evidence']}")
@@ -283,8 +347,9 @@ def render_md(rep):
 
 def interactive():
     print(f"GEA 治理環境評測 v{VERSION}｜{len(INDICATORS)} 題，每題三選一")
-    print("  2=程式層強制防護　1=有規則但靠人/AI自律　0=沒有　(空白=跳過，s=看說明)\n")
-    answers, notes = {}, {}
+    print("  2=程式層強制防護　1=有規則但靠人/AI自律　0=沒有　(空白=跳過，s=看說明)")
+    print("  答 2 會再問你證據（路徑或指令）；沒附證據的 2 分以 1 分計。\n")
+    answers, notes, evidence = {}, {}, {}
     for ind in INDICATORS:
         print(f"[{ind['id']}] {ind['what']}")
         while True:
@@ -294,22 +359,45 @@ def interactive():
                 continue
             if r in ("0", "1", "2"):
                 answers[ind["id"]] = int(r)
+                if r == "2":
+                    ev = input("  證據（路徑或指令；空白＝未附，以 1 計）> ").strip()
+                    if ev:
+                        evidence[ind["id"]] = ev
             break
-    return answers, notes
+    return answers, notes, evidence
 
 
-DEMO_ANSWERS = {i["id"]: v for i, v in zip(INDICATORS, [2, 1, 0, 1, 2, 1, 0, 1, 2, 0, 1, 2, 1, 0, 2, 1, 1, 0, 1, 2, 0, 1, 1, 0])}
+_DEMO = [2, 1, 0, 1, 2, 1, 0, 1, 2, 0, 1, 2, 1, 0, 2, 1, 1, 0, 1, 2, 0, 1, 1, 0]
+_DEMO_EVIDENCE = {"1.1": "ci/verify_hashes.py（程式比對 SHA-256，AI 只觸發）",
+                  "3.1": ".claude/settings.json 由啟動目錄決定身分，無全域身分變數",
+                  "5.1": "tools/rebuild_timeline.py 只讀落盤紀錄重建事件"}
+DEMO_ANSWERS = {i["id"]: ({"score": v, "evidence": _DEMO_EVIDENCE[i["id"]]} if i["id"] in _DEMO_EVIDENCE else v)
+                for i, v in zip(INDICATORS, _DEMO)}
 assert len(DEMO_ANSWERS) == len(INDICATORS), "DEMO_ANSWERS 必須覆蓋全部指標"
 
 
 def self_test():
     print("=== GEA 自我測試 ===")
     fails = 0
-    # T1 全 2 → 100
-    r = grade({i["id"]: 2 for i in INDICATORS})
-    ok = r["total_score"] == 100.0
+    # T1 全 2＋證據 → 100
+    r = grade({i["id"]: 2 for i in INDICATORS}, evidence={i["id"]: "x" for i in INDICATORS})
+    ok = r["total_score"] == 100.0 and len(r["evidenced"]) == len(INDICATORS)
     fails += 0 if ok else 1
-    print(f"  {'PASS' if ok else 'FAIL'}  全部程式層防住 → 100（實得 {r['total_score']}）")
+    print(f"  {'PASS' if ok else 'FAIL'}  全部程式層防住＋有證據 → 100（實得 {r['total_score']}）")
+    # T1b 全 2 但沒證據 → 以 1 計 → 50，全部標宣稱
+    r = grade({i["id"]: 2 for i in INDICATORS})
+    ok = abs(r["total_score"] - 50.0) < 0.01 and len(r["claimed"]) == len(INDICATORS)
+    fails += 0 if ok else 1
+    print(f"  {'PASS' if ok else 'FAIL'}  全部宣稱 2 分但無證據 → 以 1 計＝50，{len(r['claimed'])} 題標宣稱（實得 {r['total_score']}）")
+    # T7 作答檔驗證：非法值要被擋下並給清楚訊息
+    _, _, _, errs = normalize_answers({"9.9": 2, "1.1": 3, "1.2": "x", "1.3": {"score": 2, "evidence": ""}, "1.4": True, "_notes": []})
+    ok = len(errs) == 6
+    fails += 0 if ok else 1
+    print(f"  {'PASS' if ok else 'FAIL'}  作答檔驗證：6 種非法輸入全部被擋（實得 {len(errs)}）")
+    a, e, _, errs = normalize_answers({"1.1": {"score": 2, "evidence": "ci/x.sh"}, "1.2": "1", "_notes": {"1.1": "n"}})
+    ok = not errs and a == {"1.1": 2, "1.2": 1} and e == {"1.1": "ci/x.sh"}
+    fails += 0 if ok else 1
+    print(f"  {'PASS' if ok else 'FAIL'}  作答檔驗證：合法輸入正規化正確")
     # T2 全 0 → 0
     r = grade({i["id"]: 0 for i in INDICATORS})
     ok = r["total_score"] == 0.0
@@ -360,15 +448,26 @@ def main():
         return 2
 
     if a.demo:
-        answers, notes = DEMO_ANSWERS, {"1.3": "範例備註：基準值目前由 agent 計算，已排入改造"}
+        data = dict(DEMO_ANSWERS, _notes={"1.3": "範例備註：基準值目前由 agent 計算，已排入改造"})
     elif a.answers:
-        data = json.load(open(a.answers, encoding="utf-8"))
-        answers = {k: v for k, v in data.items() if not k.startswith("_")}
-        notes = data.get("_notes", {})
+        try:
+            data = json.load(open(a.answers, encoding="utf-8"))
+        except (OSError, ValueError) as e:
+            print(f"✗ 讀不到或不是合法 JSON：{a.answers}（{e}）")
+            return 2
     else:
-        answers, notes = interactive()
+        answers, notes, evidence = interactive()
+        data = None
+    if data is not None:
+        answers, evidence, notes, errors = normalize_answers(data)
+        if errors:
+            print("✗ 作答檔有錯，不出報告：")
+            for e in errors:
+                print("  -", e)
+            print("  每題格式：0|1|2 或 {\"score\": 0|1|2, \"evidence\": \"路徑或指令\"}；指標 id 見 --demo")
+            return 2
 
-    rep = grade(answers, notes)
+    rep = grade(answers, notes, evidence)
     md = render_md(rep)
     if a.out:
         open(a.out, "w", encoding="utf-8").write(md)

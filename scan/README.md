@@ -28,11 +28,34 @@ python3 scan/selfcheck.py /你的AI系統目錄 --profile basic
 - `--agent`：你的系統是 agent 型部署（Claude Code／自建 agent）→ 開 agent 加分軌
 - `--mapping`：報告尾附 ISO 42001／NIST AI RMF／OWASP LLM 參考對照
 - `--out 目錄`：報告輸出位置（預設 `./gea_report/`；不會寫回工具目錄）
+- `--probe`：**實測** hook——餵一筆 `rm -rf /` 的 PreToolUse 事件給你設定的 hook，看它擋不擋。
+  這會**執行你目標目錄裡的 hook 腳本**（10 秒逾時、最小環境變數），所以預設關閉，只掃你信任的目錄。
+- `--min-score N`：門檻分低於 N 就 exit 3，接 CI 用
+
+**離開碼**：`0` 完成且達門檻｜`3` 低於 `--min-score`｜`2` 引擎錯誤或用法錯誤（出錯就不出報告，不給分）
+
+```bash
+# CI 範例：低於 60 分就擋
+python3 scan/selfcheck.py ./my-agent --profile sustained --agent --min-score 60
+```
 
 **產出**（都在 `--out` 目錄）
 - 終端摘要（總分＋每項紅黃綠）
-- `score.json`（機讀）
+- `score.json`（機讀；`schema_version: gea-scan-score/1`，含 `run_id`；同一輸入兩次輸出相同，只有 `run_id`/`generated` 不同）
 - `report_card.html`（給主管看的報告卡，瀏覽器開）
+
+## 它看的是內容，不是檔名（v0.5）
+
+| 領域 | 怎麼判 |
+|---|---|
+| 動作紀錄 | 任何 `.jsonl`，內容要真的是 JSON 紀錄；有 `hash`/`prev_hash` 類欄位就**重算整條鏈**（支援一般格式與 SIC-JS ledger 信封），改一個字元會被抓到 |
+| 金鑰隔離 | 讀完整檔（≤1 MB），含 `.pem`/`.key`/`.toml`/`.env*`/無副檔名；OpenAI/Google/AWS/GitHub/Slack 樣式＋私鑰區塊＋高熵警示；檔名或內容標 `TEST_ONLY` 的另列「測試金鑰」，揭露但不算洩漏 |
+| 危險操作攔截 | 攔截腳本要有內容和擋下的痕跡；`.claude/settings.json` 的 PreToolUse hook 要引用到存在的腳本、matcher 要涵蓋 Bash/Write/Edit；`--probe` 真的餵危險指令 |
+| 完成需核准 | 結案檔要有判定（APPROVED/VALID/核准…）**和**一個找得到的證據引用；SIC-JS packet 的 `completed` 要有證據、核准、而且驗證者不是自己 |
+| 中斷可復原／檔案規則／事故教訓 | 檔案要有實際內容（空檔不算） |
+| 引用完整 | 絕對路徑和 Markdown 相對連結都查；反引號裡的路徑只列不扣 |
+
+一組檔名全對、內容全空的目錄：**1 分**（v0.3 是 78 分）。
 
 ## 分數怎麼算（60/40 兩層）
 
@@ -55,8 +78,12 @@ python3 scan/selfcheck.py /你的AI系統目錄 --profile basic
 ## 自我驗證
 
 ```bash
-python3 scan/selftest.py     # 用固定測資跑引擎；引擎被改壞會 fail
+python3 scan/selftest.py     # 固定測資＋防灌分測資＋竄改測資＋元測試；任何一項 fail 就 exit 1
+python3 scan/make_manifest.py --check   # 出貨清單 sha256 重算比對
 ```
+
+selftest 是 fail-closed 的：它檢查子程序離開碼、每次用獨立暫存輸出並比對 `run_id`，
+而且有一個元測試——把引擎故意弄壞，selftest 自己必須 FAIL，否則它就只是裝飾品。
 
 ## 重要聲明
 
